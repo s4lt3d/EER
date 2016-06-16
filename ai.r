@@ -25,14 +25,9 @@ fixjson <- function(json)
 
 doPOST <- function(params)
 {
-  
-  
-  url <- paste(base.url, "?api_payload=", p, sep="")
-  print(url)
-  
+  url <- base.url 
   p <- toJSON(params, auto_unbox=TRUE)
-  
-  req <- POST(url=url)
+  req <- POST(url=url, body=list(api_payload=p), encode="form")
   json <- content(req, "text")
   print(json)
   json <- fixjson(json)
@@ -64,13 +59,11 @@ createCountry <- function()
   return(fromJSON(res))
 }
 
-res <- POST(url="http://www.earthempires.com/api/info", body='api_function=info&api_payload={"username":"salted","ai_key":"49ee125ad5e9a3b81dfb771ac0d3d2fb","server":"ai"}', encode="json", verbose())
-content(res, "text")
-
-
-#info <- getInfo()
-#server <- getServer()
 
 
 
+
+
+info <- getInfo()
+server <- getServer()
 #country <- createCountry()

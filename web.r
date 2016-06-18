@@ -26,10 +26,10 @@ doPOST <- function(params)
 {
   url <- base.url 
   p <- toJSON(params, auto_unbox=TRUE)
-  print(p)
+  #print(p)
   req <- POST(url=url, body=list(api_payload=p), encode="form")
   json <- content(req, "text")
-  print(json)
+  #print(json)
   json <- fixjson(json)
   return(json)
 }
@@ -47,14 +47,15 @@ getServer <- function()
   params <- default.params
   params$api_function <- "server"
   res <- doPOST(params)
-  return(tbl_dt(fromJSON(res)$SERVER))
+  res <- fromJSON(res)$SERVER
+  return(tbl_dt(res))
 }
 
 createCountry <- function()
 {
   params <- default.params
   params$api_function <- "create"
-  params$cname <- paste(sample(state.division, 1), randomNames(n=1,which.names="first"))
+  params$cname <- paste("Salted", sample(state.division, 1), randomNames(n=1,which.names="first"))
   res <- doPOST(params)
   return(tbl_dt(fromJSON(res)$CREATE))
 }

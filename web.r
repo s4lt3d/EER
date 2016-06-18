@@ -8,6 +8,7 @@ default.params$username <- user.name
 default.params$ai_key <- api.key
 default.params$server <- "ai"
 
+
 fixjson <- function(json)
 {
   
@@ -28,7 +29,7 @@ doPOST <- function(params)
   p <- toJSON(params, auto_unbox=TRUE)
   #print(p)
   req <- POST(url=url, body=list(api_payload=p), encode="form")
-  json <- content(req, "text")
+  json <- content(req, "text", encoding = "UTF-8")
   #print(json)
   json <- fixjson(json)
   return(json)
@@ -55,7 +56,7 @@ createCountry <- function()
 {
   params <- default.params
   params$api_function <- "create"
-  params$cname <- paste("Salted", sample(state.division, 1), randomNames(n=1,which.names="first"))
+  params$cname <- paste("R_bot", sample(state.division, 1), randomNames(n=1,which.names="first"))
   res <- doPOST(params)
   return(tbl_dt(fromJSON(res)$CREATE))
 }
@@ -100,6 +101,7 @@ privateMarketInfo <- function(cnum)
   m2 <- merge(upm$available, upm$sell_price, by='.id')
   m3 <- merge(m2, upm$buy_price, by='.id')
   colnames(m3) <- c('type', 'available', 'sell_price', 'buy_price')
+  print("PM")
   return(tbl_dt(m3))
 }
 
@@ -114,6 +116,7 @@ government <- function(cnum, govt)
   params$cnum <- cnum
   params$govt <- govt
   res <- doPOST(params)
+  print("G")
   return(tbl_dt(fromJSON(res)$GOVT))
 }
 
@@ -124,6 +127,7 @@ cashTurn <- function(cnum)
   params$cnum <- cnum
   params$turns <- 1
   res <- doPOST(params)
+  print("C")
   return(tbl_dt(fromJSON(res)$CASH))
 }
 
@@ -134,6 +138,7 @@ explore <- function(cnum)
   params$cnum <- cnum
   params$turns <- 1
   res <- doPOST(params)
+  print("E")
   return(tbl_dt(fromJSON(res)$EXPLORE))
 }
 
@@ -144,6 +149,7 @@ build <- function(cnum, ent=0, res=0, indy=0, mb=0, lab=0, farm=0, rig=0, cs=0)
   params$cnum <- cnum
   params$build <- list(farm=farm, ent=ent, res=res, indy=indy, mb=mb, lab=lab, farm=farm, rig=rig, cs=cs)
   res <- doPOST(params)
+  print("B")
   return(tbl_dt(fromJSON(res)$BUILD))
 }
 
@@ -154,6 +160,7 @@ privateMarketBuy <- function(cnum, m_tr=0, m_j=0, m_tu=0, m_ta=0, m_bu=0, m_oil=
   params$cnum <- cnum
   params$buy <- list( m_tr=m_tr, m_j=m_j, m_tu=m_tu, m_ta=m_ta, m_bu=m_bu, m_oil=m_oil)
   res <- doPOST(params)
+  print("PM")
   return(tbl_dt(fromJSON(res)$PM))
 }
 
@@ -174,6 +181,7 @@ tech <- function(cnum, mil=0, med=0, bus=0, res=0, agri=0, war=0, ms=0, weap=0, 
   params$cnum <- cnum
   params$tech <- list(mil=mil, med=med, bus=bus, res=res, agri=agri, war=war, ms=ms, weap=weap, indy=indy, spy=spy, sdi=sdi)
   res <- doPOST(params)
+  print("T")
   return(tbl_dt(fromJSON(res)$TECH))
 }
 

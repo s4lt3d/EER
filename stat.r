@@ -15,29 +15,29 @@ getSlopeDebug <- function(table.df, title)
 
 decisionTable <- function(history.table, cnum)
 {
-  turns.money <- tail(select(filter(history.table, cnum==cnum), turns_played, money), n=20)
+  turns.money <- tail(distinct(select(filter(history.table, cnum==cnum), turns_played, money)), n=20)
   money.slope <- getSlope(turns.money)
-  getSlopeDebug(turns.money, "money")
+  #getSlopeDebug(turns.money, "money")
   
-  turns.income <- tail(select(filter(history.table, cnum==cnum), turns_played, income), n=20)
+  turns.income <- tail(distinct(select(filter(history.table, cnum==cnum), turns_played, income)), n=20)
   income.slope <- getSlope(turns.income)
-  getSlopeDebug(turns.income, "income")
+  #getSlopeDebug(turns.income, "income")
   
-  turns.taxes <- tail(select(filter(history.table, cnum==cnum), turns_played, taxes), n=20)
+  turns.taxes <- tail(distinct(select(filter(history.table, cnum==cnum), turns_played, taxes)), n=20)
   taxes.slope <- getSlope(turns.taxes)
-  getSlopeDebug(turns.taxes, "taxes")
+  #getSlopeDebug(turns.taxes, "taxes")
   
-  turns.pop <- tail(select(filter(history.table, cnum==cnum), turns_played, pop), n=20)
+  turns.pop <- tail(distinct(select(filter(history.table, cnum==cnum), turns_played, pop)), n=20)
   pop.slope <- getSlope(turns.pop)
-  getSlopeDebug(turns.pop, "pop")
+  #getSlopeDebug(turns.pop, "pop")
   
-  turns.pci <- tail(select(filter(history.table, cnum==cnum), turns_played, pci), n=20)
+  turns.pci <- tail(distinct(select(filter(history.table, cnum==cnum), turns_played, pci)), n=20)
   pci.slope <- getSlope(turns.pci)
-  getSlopeDebug(turns.pci, "pci")
+  #getSlopeDebug(turns.pci, "pci")
   
-  turns.foodnet <- tail(select(filter(history.table, cnum==cnum), turns_played, foodnet), n=20)
+  turns.foodnet <- tail(distinct(select(filter(history.table, cnum==cnum), turns_played, foodnet)), n=20)
   foodnet.slope <- getSlope(turns.foodnet)
-  getSlopeDebug(turns.foodnet, "foodnet")
+  #getSlopeDebug(turns.foodnet, "foodnet")
   
   decision.table <- cbind('money', money.slope)
   decision.table <- rbind(decision.table, cbind('income', income.slope))

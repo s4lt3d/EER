@@ -9,6 +9,8 @@ library("randomNames")
 library("plyr")
 library("tidyr")
 
+options(warn=-2)
+
 this.dir <- dirname(parent.frame(2)$ofile)
 setwd(this.dir)
 
@@ -28,8 +30,11 @@ while(TRUE)
     countryInfo(cnum)
     
     advisor.current <- advisor(cnum)
+    
     while(advisor.current$turns > 0)
     {
+      print(paste("Playing", cnum, "Turn", advisor.current$turns_played))
+      
       advisor.current <- advisor(cnum)
       if(!exists("advisor.history"))
       {
@@ -37,21 +42,33 @@ while(TRUE)
       }
       advisor.history <- bind_rows(advisor.history, advisor.current)
     
+      if(advisor.current$money < 60000)
+      {
+        cashTurn(cnum)
+        next
+      }
+      
       if(advisor.current$empty < advisor.current$bpt)
       {
         explore(cnum)
+        print("explore")
       }
+      
+      
       
       if(advisor.current$b_cs < 100)
       {
-        build(cnum, cs=advisor.current$bpt)
+        build(cnum, cs=1)
+        next
       }
       
       if(advisor.current$food < 1000)
       {
         privateMarketBuy(cnum, m_bu=1000)
         build(cnum, farm=advisor.current$bpt)
+        tech(cnum, agri=advisor.current$tpt)
       }
+      
       
       if(length(filter(advisor.history, cnum==cnum)$pop) > 20)
       {
@@ -59,28 +76,37 @@ while(TRUE)
         
         switch(decision.table$type[1],
           foodnet={
-            build(cnum, farm=advisor.current$bpt)
+            tech(cnum, agri=advisor.current$tpt)
+            print("foodnet")
           },
           taxes={
             build(cnum, res=advisor.current$bpt)
+            print("foodnet")
           },
           income={
             build(cnum, res=advisor.current$bpt)
+            print("income")
           },
           money={
-            cashTurn(cnum)
+            tech(cnum, res=advisor.current$tpt)
+            print("money")
           },
           pop={
             build(cnum, res=advisor.current$bpt)
+            print("pop")
           },
           pci={ 
             explore(cnum)
+            print("pci")
           })
       } else {
-        build(cnum, cs=advisor.current$bpt)
+        build(cnum, cs=1)
         explore(cnum)
+        cashTurn(cnum)  
       }
+      
     }
+    
   }
   print("sleeping for 60 seconds")
   Sys.sleep(60)

@@ -2,6 +2,8 @@ base.url <- "http://www.earthempires.com/api"
 user.name <- "salted"
 api.key <- "49ee125ad5e9a3b81dfb771ac0d3d2fb"
 
+timeout(1) # set timeout for web requests
+
 #default.params <- paste("?", "username=", user.name, "&ai_key=", api.key, "&server=ai", sep="")
 default.params <- list()
 default.params$username <- user.name

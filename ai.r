@@ -9,7 +9,23 @@ library("randomNames")
 library("plyr")
 library("tidyr")
 
+plot.advisor <- function(cnum, tail.n=20)
+{
+  old.par <- par(mfrow=c(2, 4))
+  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, networth)),n=tail.n), "networth")
+  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, money)),n=tail.n), "money")
+  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, income)),n=tail.n), "income")
+  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, taxes)),n=tail.n), "taxes")
+  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, food)),n=tail.n), "food")
+  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, foodnet)),n=tail.n), "foodnet")
+  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, pop)),n=tail.n), "pop")
+  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, pop)),n=tail.n), "land")
+  par(old.par)
+}
+
+
 options(warn=-2)
+
 
 this.dir <- dirname(parent.frame(2)$ofile)
 setwd(this.dir)
@@ -23,8 +39,11 @@ server <- getServer()
 
 repeat
 {
+  
   for(cnum in server$cnum_list[[1]])
   {
+    
+    plot.advisor(cnum, 100)
     #cnum <- server$cnum_list[[1]][length(server$cnum_list[[1]])]
     
     countryInfo(cnum)
@@ -111,8 +130,9 @@ repeat
     }
     
   }
-  print("sleeping for 60 seconds")
-  Sys.sleep(60)
+  print("sleeping for 120 seconds")
+  Sys.sleep(120)
+  dev.off()
 }
 
 

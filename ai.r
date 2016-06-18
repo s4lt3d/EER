@@ -21,7 +21,7 @@ getInfo()
 createCountry()
 server <- getServer()
 
-while(TRUE)
+repeat
 {
   for(cnum in server$cnum_list[[1]])
   {
@@ -53,8 +53,6 @@ while(TRUE)
         explore(cnum)
         print("explore")
       }
-      
-      
       
       if(advisor.current$b_cs < 100)
       {
@@ -88,7 +86,12 @@ while(TRUE)
             print("income")
           },
           money={
-            tech(cnum, res=advisor.current$tpt)
+            
+            if(advisor.current$food > 5000 )
+            {
+              privateMarketSell(cnum, m_bu=(advisor.current$food-5000))
+            }
+            build(cnum, farm=advisor.current$bpt)
             print("money")
           },
           pop={

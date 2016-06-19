@@ -2,14 +2,13 @@ base.url <- "http://www.earthempires.com/api"
 user.name <- "salted"
 api.key <- "49ee125ad5e9a3b81dfb771ac0d3d2fb"
 
-timeout(1) # set timeout for web requests
+timeout(5) # set timeout for web requests
 
 #default.params <- paste("?", "username=", user.name, "&ai_key=", api.key, "&server=ai", sep="")
 default.params <- list()
 default.params$username <- user.name
 default.params$ai_key <- api.key
 default.params$server <- "ai"
-
 
 fixjson <- function(json)
 {
@@ -27,10 +26,14 @@ fixjson <- function(json)
 
 doPOST <- function(params)
 {
-  url <- base.url 
+  post.url <- base.url 
   p <- toJSON(params, auto_unbox=TRUE)
+  req <- ""
   #print(p)
-  req <- POST(url=url, body=list(api_payload=p), encode="form")
+  tryCatch( # POST can timeout so catch this. 
+    req <- POST(url=post.url, body=list(api_payload=p), encode="form"),
+    error=function(X){ req <-'{"response":"ERROR"}'}
+  )
   json <- content(req, "text", encoding = "UTF-8")
   #print(json)
   json <- fixjson(json)

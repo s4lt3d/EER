@@ -1,7 +1,14 @@
+normalit<-function(m){
+  (m - min(m))/(max(m)-min(m))
+}
 
 getSlope <- function(table.df)
 {
   lin.model <- lm(table.df[[2]]~table.df[[1]])
+  if(is.na(as.numeric(coef(lin.model)[2])))
+  {
+    return(10000000)
+  }
   return(as.numeric(coef(lin.model)[2]))
 }
 
@@ -9,46 +16,69 @@ getSlopeDebug <- function(table.df, title)
 {
   lin.model <- lm(table.df[[2]]~table.df[[1]])
   plot(table.df[[2]]~table.df[[1]], main=title)
-  abline(lin.model)
+  if(!is.na(as.numeric(coef(lin.model)[2])))
+  {  
+    abline(lin.model) 
+  }
   return(coef(lin.model)[2])
 }
 
-decisionTable <- function(history.table, cnum)
+decisionTable <- function(cnum=26)
 {
-  turns.money <- tail(distinct(select(filter(history.table, cnum==cnum), turns_played, money)), n=20)
+  turns.money <- tail(distinct(select(filter(advisor.history, cnum==cnum), turns_played, money)), n=20)
+  turns.money <- mutate(turns.money, money = normalit(money))
   money.slope <- getSlope(turns.money)
-  #getSlopeDebug(turns.money, "money")
-  
-  turns.income <- tail(distinct(select(filter(history.table, cnum==cnum), turns_played, income)), n=20)
+
+  turns.income <- tail(distinct(select(filter(advisor.history, cnum==cnum), turns_played, income)), n=20)
+  turns.income <- mutate(turns.income, income = normalit(income))
   income.slope <- getSlope(turns.income)
-  #getSlopeDebug(turns.income, "income")
-  
-  turns.taxes <- tail(distinct(select(filter(history.table, cnum==cnum), turns_played, taxes)), n=20)
+
+  turns.taxes <- tail(distinct(select(filter(advisor.history, cnum==cnum), turns_played, taxes)), n=20)
+  turns.taxes <- mutate(turns.taxes, taxes = normalit(taxes))
   taxes.slope <- getSlope(turns.taxes)
-  #getSlopeDebug(turns.taxes, "taxes")
-  
-  turns.pop <- tail(distinct(select(filter(history.table, cnum==cnum), turns_played, pop)), n=20)
+
+  turns.pop <- tail(distinct(select(filter(advisor.history, cnum==cnum), turns_played, pop)), n=20)
+  turns.pop <- mutate(turns.pop, pop = normalit(pop))
   pop.slope <- getSlope(turns.pop)
-  #getSlopeDebug(turns.pop, "pop")
-  
-  turns.pci <- tail(distinct(select(filter(history.table, cnum==cnum), turns_played, pci)), n=20)
+
+  turns.pci <- tail(distinct(select(filter(advisor.history, cnum==cnum), turns_played, pci)), n=20)
+  turns.pci <- mutate(turns.pci, pci = normalit(pci))
   pci.slope <- getSlope(turns.pci)
-  #getSlopeDebug(turns.pci, "pci")
+
+  turns.food <- tail(distinct(select(filter(advisor.history, cnum==cnum), turns_played, food)), n=20)
+  turns.food <- mutate(turns.food, food = normalit(food))
+  food.slope <- getSlope(turns.food)
   
-  turns.foodnet <- tail(distinct(select(filter(history.table, cnum==cnum), turns_played, foodnet)), n=20)
-  foodnet.slope <- getSlope(turns.foodnet)
-  #getSlopeDebug(turns.foodnet, "foodnet")
+  advisor.cnum <- tail(select(filter(advisor.history, cnum==cnum)), n=1)
+
+  if(select(advisor.cnum, money) < 1000)
+  {
+    income.slope <- -10
+  }
+  
+  if(select(advisor.cnum, food) < select(advisor.cnum, foodnet) * 2)
+  {
+    food.slope <- -9
+  }
+
+  building.needed <- 0
+  
+  if(select(advisor.cnum, empty) < select(advisor.cnum, bpt))
+  {
+    building.needed <- -8
+  }
   
   decision.table <- cbind('money', money.slope)
+  decision.table <- rbind(decision.table, cbind('explore', building.needed))
   decision.table <- rbind(decision.table, cbind('income', income.slope))
   decision.table <- rbind(decision.table, cbind('taxes', taxes.slope))
   decision.table <- rbind(decision.table, cbind('pop', pop.slope))
   decision.table <- rbind(decision.table, cbind('pci', pci.slope))
-  decision.table <- rbind(decision.table, cbind('foodnet', foodnet.slope))
+  decision.table <- rbind(decision.table, cbind('food', food.slope))
   decision.table <- data.frame(decision.table)
-  colnames(decision.table) <- c('type','slope')
+  colnames(decision.table) <- c('type','weight')
   decision.table <- tbl_dt(decision.table)
-  decision.table <- decision.table %>% group_by(type) %>% arrange(slope, desc(slope))
+  decision.table <- decision.table %>% group_by(type) %>% arrange(weight, desc(weight))
   
   return(decision.table)
 }

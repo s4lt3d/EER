@@ -9,29 +9,14 @@ library("randomNames")
 library("plyr")
 library("tidyr")
 
-plot.advisor <- function(cnum, tail.n=20)
-{
-  old.par <- par(mfrow=c(2, 4))
-  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, networth)),n=tail.n), "networth")
-  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, money)),n=tail.n), "money")
-  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, income)),n=tail.n), "income")
-  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, taxes)),n=tail.n), "taxes")
-  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, food)),n=tail.n), "food")
-  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, foodnet)),n=tail.n), "foodnet")
-  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, pop)),n=tail.n), "pop")
-  getSlopeDebug(tail(distinct(select(filter(advisor.history, cnum== cnum), turns_played, pop)),n=tail.n), "land")
-  par(old.par)
-}
-
-
 options(warn=-2)
-
 
 this.dir <- dirname(parent.frame(2)$ofile)
 setwd(this.dir)
 
 source('web.r') # contains all the code for getting data in and out of the server
 source('stat.r')
+source('advisor.R')
 
 getInfo()
 createCountry()
@@ -39,28 +24,18 @@ server <- getServer()
 
 repeat
 {
-  
   for(cnum in server$cnum_list[[1]])
   {
+    advisor.current <<- get.advisor(cnum)
     
-    plot.advisor(cnum, 100)
-    #cnum <- server$cnum_list[[1]][length(server$cnum_list[[1]])]
-    
-    countryInfo(cnum)
-    
-    advisor.current <- advisor(cnum)
+    plot.advisor(cnum, 100) # Show the last 100 interesting things
     
     while(advisor.current$turns > 0)
     {
       print(paste("Playing", cnum, "Turn", advisor.current$turns_played))
       
-      advisor.current <- advisor(cnum)
-      if(!exists("advisor.history"))
-      {
-        advisor.history <- advisor.current
-      }
-      advisor.history <- bind_rows(advisor.history, advisor.current)
-    
+      advisor.current <<- advisor(cnum)
+      
       if(advisor.current$money < 60000)
       {
         cashTurn(cnum)
@@ -70,35 +45,40 @@ repeat
       if(advisor.current$empty < advisor.current$bpt)
       {
         explore(cnum)
+        advisor.current <<- advisor(cnum)
         print("explore")
       }
       
       if(advisor.current$b_cs < 100)
       {
         build(cnum, cs=1)
+        advisor.current <<- advisor(cnum)
         next
       }
       
       if(advisor.current$food < 1000)
       {
         privateMarketBuy(cnum, m_bu=1000)
+        advisor.current <<- advisor(cnum)
         build(cnum, farm=advisor.current$bpt)
+        advisor.current <<- advisor(cnum)
         tech(cnum, agri=advisor.current$tpt)
+        advisor.current <<- advisor(cnum)
       }
       
       
       if(length(filter(advisor.history, cnum==cnum)$pop) > 20)
       {
-        decision.table <- decisionTable(advisor.history, cnum)
+        decision.table <- decisionTable(cnum)
         
         switch(decision.table$type[1],
-          foodnet={
+          food={
             tech(cnum, agri=advisor.current$tpt)
-            print("foodnet")
+            print("food")
           },
           taxes={
             build(cnum, res=advisor.current$bpt)
-            print("foodnet")
+            print("food")
           },
           income={
             build(cnum, res=advisor.current$bpt)
@@ -109,6 +89,7 @@ repeat
             if(advisor.current$food > 5000 )
             {
               privateMarketSell(cnum, m_bu=(advisor.current$food-5000))
+              advisor.current <<- advisor(cnum)
             }
             build(cnum, farm=advisor.current$bpt)
             print("money")
@@ -123,10 +104,13 @@ repeat
           })
       } else {
         build(cnum, cs=1)
+        advisor.current <<- advisor(cnum)
         explore(cnum)
+        advisor.current <<- advisor(cnum)
         cashTurn(cnum)  
+        advisor.current <<- advisor(cnum)
       }
-      
+      advisor.current <<- advisor(cnum)
     }
     
   }

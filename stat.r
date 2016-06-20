@@ -70,7 +70,7 @@ decisionTable <- function(cnum=26)
   
   if(select(advisor.current, empty) < select(advisor.current, bpt) * 4)
   {
-    building.needed <- -8
+    building.needed <- -6
   }
   
   cs.needed <- 0
@@ -78,6 +78,21 @@ decisionTable <- function(cnum=26)
   if(select(advisor.current, b_cs) < 80)
   {
     cs.needed <- -5
+  }
+  
+  end.of.game = 100 # don't play this unless its really end of game
+  
+  
+  if(((advisor.current$reset_end - advisor.current$Time ) / 60) < 15) # end of game
+  {
+    if(advisor.current$money > 1000000)
+    {
+      end.of.game = -8
+    }
+    else
+    {
+      money.slope = -8
+    }
   }
   
   decision.table <- cbind('money', money.slope)
@@ -88,6 +103,7 @@ decisionTable <- function(cnum=26)
   decision.table <- rbind(decision.table, cbind('pop', pop.slope))
   decision.table <- rbind(decision.table, cbind('pci', pci.slope))
   decision.table <- rbind(decision.table, cbind('food', food.slope))
+  decision.table <- rbind(decision.table, cbind('end.of.game', end.of.game))
   decision.table <- rbind(decision.table, cbind('none', -0.5))
   decision.table <- data.frame(decision.table)
   colnames(decision.table) <- c('type','weight')

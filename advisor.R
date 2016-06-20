@@ -42,3 +42,11 @@ get.advisor <- function(cnum)
   
   return(advisor.current)
 }
+
+
+
+networth.estimator <- function(Troops = 0, Jets = 0, Turrents=0, Tanks=0, Spies=0, Tech=0, Land=0, Buildings=0, Money=0, Food=0, Missles=0, Pop=0, Oil=0)
+{
+  networth <- (Troops * 0.5) + (Jets * 0.6) + (Turrents * 0.6) + (Tanks * 2) + (Spies * 1) + (Tech * 2) + (Land * 45) + (Buildings * 35) + (Money / 20000) + (Food/1000) + (Missles * 2500) + (Pop/6) + (Oil/100)
+  return(networth)
+}

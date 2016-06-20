@@ -322,9 +322,13 @@ government.Republic <- function()
   return(!is.null(response$govt))
 }
 
-buy.Bushels <- function(qty)
+buy.Bushels <- function(qty=-1)
 {
   mi <- marketInfo(cnum)
+  if( qty < 0)
+  {
+    qty <- max(filter(mi, type== "m_bu")$can_buy)
+  }
   mi <- arrange(filter(mi, type== "m_bu", available >= qty), buy_price)
   if(length(mi$buy_price) == 0)
   {
@@ -344,10 +348,14 @@ buy.Bushels <- function(qty)
   }
 }
 
-buy.Troops <- function(qty)
+buy.Troops <- function(qty=-1)
 {
   mi <- marketInfo(cnum)
-  mi <- arrange(filter(mi, type== "m_tr", available >= qty), buy_price)
+  if( qty < 0)
+  {
+    qty <- max(filter(mi, type== "m_tr")$can_buy)
+  }
+  mi <- arrange(filter(mi, type== "m_tr", can_buy >= qty), buy_price)
   if(length(mi$buy_price) == 0)
   {
     return(FALSE)
@@ -366,9 +374,13 @@ buy.Troops <- function(qty)
   }
 }
 
-buy.Jets <- function(qty)
+buy.Jets <- function(qty=-1)
 {
   mi <- marketInfo(cnum)
+  if( qty < 0)
+  {
+    qty <- max(filter(mi, type== "m_j")$can_buy)
+  }
   mi <- arrange(filter(mi, type== "m_j", available >= qty), buy_price)
   if(length(mi$buy_price) == 0)
   {
@@ -388,9 +400,13 @@ buy.Jets <- function(qty)
   }
 }
 
-buy.Turrets <- function(qty)
+buy.Turrets <- function(qty=-1)
 {
   mi <- marketInfo(cnum)
+  if( qty < 0)
+  {
+    qty <- max(filter(mi, type== "m_tu")$can_buy)
+  }
   mi <- arrange(filter(mi, type== "m_tu", available >= qty), buy_price)
   if(length(mi$buy_price) == 0)
   {
@@ -410,9 +426,14 @@ buy.Turrets <- function(qty)
   }
 }
 
-buy.Tanks <- function(qty)
+buy.Tanks <- function(qty=-1)
 {
+  
   mi <- marketInfo(cnum)
+  if( qty < 0)
+  {
+    qty <- max(filter(mi, type== "m_ta")$can_buy)
+  }
   mi <- arrange(filter(mi, type== "m_ta", available >= qty), buy_price)
   if(length(mi$buy_price) == 0)
   {
@@ -432,9 +453,13 @@ buy.Tanks <- function(qty)
   }
 }
 
-buy.Oil <- function(qty)
+buy.Oil <- function(qty=-1)
 {
   mi <- marketInfo(cnum)
+  if( qty < 0)
+  {
+    qty <- max(filter(mi, type== "m_oil")$can_buy)
+  }
   mi <- arrange(filter(mi, type== "m_oil", available >= qty), buy_price)
   if(length(mi$buy_price) == 0)
   {

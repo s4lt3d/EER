@@ -63,7 +63,7 @@ createCountry <- function()
 {
   params <- default.params
   params$api_function <- "create"
-  params$cname <- paste("R_bot", sample(state.division, 1), randomNames(n=1,which.names="first"))
+  params$cname <- paste("Rbot", sample(state.division, 1), randomNames(n=1,which.names="first"))
   res <- doPOST(params)
   return(tbl_dt(fromJSON(res)$CREATE))
 }
@@ -320,5 +320,8 @@ publicMarketSell <- function(cnum, m_tr=list(price=0, quantity=0), m_j=list(pric
 
 marketInfo <- function(cnum)
 {
-  return(bind_rows(privateMarketInfo(cnum), publicMarketInfo(cnum)))
+  market <- bind_rows(privateMarketInfo(cnum), publicMarketInfo(cnum))
+  market <- mutate(market, can_buy=ifelse(advisor.current$money/buy_price > available, available, advisor.current$money/buy_price)  )
+  
+  return(market)
 }

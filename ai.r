@@ -55,6 +55,7 @@ repeat
           print('food')
         },
         income={
+          cash()
           tech.Business()
           print('income')
         },
@@ -65,6 +66,18 @@ repeat
         taxes={
           build.Enterprise.Zones()
           print('taxes')
+        },
+        end.of.game={
+          #sell of all but about 10 turns worth of food
+          if(advisor.current$food > advisor.current$foodnet * 20)
+          {
+            sell.Bushels(advisor.current$food - advisor.current$foodnet * 20)
+            
+          }
+          
+          get.advisor(cnum) # make sure we are up to date for this
+          buy.Tanks() # buy all tanks we have money for
+          print('end of game')
         },
         {
           tech.Residential()
@@ -83,7 +96,7 @@ repeat
   }
   print("sleeping for 120 seconds")
   Sys.sleep(120*4)
-  dev.off()
+  #dev.off()
 }
 
 

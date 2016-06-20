@@ -72,11 +72,16 @@ repeat
           if(advisor.current$food > advisor.current$foodnet * 20)
           {
             sell.Bushels(advisor.current$food - advisor.current$foodnet * 20)
-            
           }
           
           get.advisor(cnum) # make sure we are up to date for this
           buy.Tanks() # buy all tanks we have money for
+          get.advisor(cnum) # make sure we are up to date for this
+          buy.Troops() # buy all troops we have money for
+          get.advisor(cnum) # make sure we are up to date for this
+          buy.Turrets() # buy all turrets we have money for
+          get.advisor(cnum) # make sure we are up to date for this
+          buy.Jets() # buy all jets we have money for
           print('end of game')
         },
         {

@@ -63,7 +63,7 @@ repeat
           cash()
           print('money')
         },
-        taxes={
+        taxes={ 
           build.Enterprise.Zones()
           print('taxes')
         },
@@ -94,7 +94,7 @@ repeat
     }
    # plot.advisor(cnum, 100) # Show the last 100 interesting things
   }
-  print("sleeping for 120 seconds")
+  print("sleeping for 8 minutes")
   Sys.sleep(120*4)
   #dev.off()
 }

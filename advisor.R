@@ -27,17 +27,18 @@ plot.advisor <- function(cnum, tail.n=20)
 
 get.advisor <- function(cnum)
 {
-  advisor.current <<- advisor(cnum)
+  cnum <<- cnum
+  ac <- advisor(cnum)
+  server <- getServer()
+  advisor.current <<- tbl_df(cbind(ac, distinct(select(server, -cnum_list)), setNames(tbl_dt(as.numeric(as.POSIXct(Sys.time()))), c('Time'))))
   
+  #write.table(advisor.current, file="EE_History.csv", sep=",")
   if(!exists("advisor.history"))
   {
     advisor.history <<- advisor.current
+      
   }
   advisor.history <<- bind_rows(advisor.history, advisor.current)
   
   return(advisor.current)
 }
-
-cnum = 26
-get.advisor(cnum)
-plot.advisor(26)

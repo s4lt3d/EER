@@ -4,6 +4,11 @@ normalit<-function(m){
 
 getSlope <- function(table.df)
 {
+  if(length(table.df[[1]]) == 1){
+    return(10000000)
+  }
+  
+  table.df[[2]][is.nan( table.df[[2]])] <- 0
   lin.model <- lm(table.df[[2]]~table.df[[1]])
   if(is.na(as.numeric(coef(lin.model)[2])))
   {
@@ -51,33 +56,43 @@ decisionTable <- function(cnum=26)
   
   advisor.cnum <- tail(select(filter(advisor.history, cnum==cnum)), n=1)
 
-  if(select(advisor.cnum, money) < 1000)
+  if(select(advisor.current, money) < 1000)
   {
     income.slope <- -10
   }
   
-  if(select(advisor.cnum, food) < select(advisor.cnum, foodnet) * 2)
+  if(select(advisor.current, food) < select(advisor.current, foodnet) * 2)
   {
     food.slope <- -9
   }
 
   building.needed <- 0
   
-  if(select(advisor.cnum, empty) < select(advisor.cnum, bpt))
+  if(select(advisor.current, empty) < select(advisor.current, bpt) * 4)
   {
     building.needed <- -8
   }
   
+  cs.needed <- 0
+  
+  if(select(advisor.current, b_cs) < 80)
+  {
+    cs.needed <- -5
+  }
+  
   decision.table <- cbind('money', money.slope)
   decision.table <- rbind(decision.table, cbind('explore', building.needed))
+  decision.table <- rbind(decision.table, cbind('b_cs', cs.needed))
   decision.table <- rbind(decision.table, cbind('income', income.slope))
   decision.table <- rbind(decision.table, cbind('taxes', taxes.slope))
   decision.table <- rbind(decision.table, cbind('pop', pop.slope))
   decision.table <- rbind(decision.table, cbind('pci', pci.slope))
   decision.table <- rbind(decision.table, cbind('food', food.slope))
+  decision.table <- rbind(decision.table, cbind('none', -0.5))
   decision.table <- data.frame(decision.table)
   colnames(decision.table) <- c('type','weight')
   decision.table <- tbl_dt(decision.table)
+  decision.table <- mutate(decision.table, weight, weight=as.numeric(levels(weight))[weight])
   decision.table <- decision.table %>% group_by(type) %>% arrange(weight, desc(weight))
   
   return(decision.table)

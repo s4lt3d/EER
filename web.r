@@ -1,3 +1,6 @@
+# This is the low level comms for talking to the server. 
+# See game_functions.r for game development
+
 base.url <- "http://www.earthempires.com/api"
 user.name <- "salted"
 api.key <- "49ee125ad5e9a3b81dfb771ac0d3d2fb"
@@ -12,7 +15,6 @@ default.params$server <- "ai"
 
 fixjson <- function(json)
 {
-  
   if(grepl(':', x=json) == FALSE)
   {
     json <- sub("(\\w*)", "\"ERROR\":\"\\1\"", x=json)
@@ -105,8 +107,8 @@ privateMarketInfo <- function(cnum)
   upm <- lapply(json, ldply)
   m2 <- merge(upm$available, upm$sell_price, by='.id')
   m3 <- merge(m2, upm$buy_price, by='.id')
-  colnames(m3) <- c('type', 'available', 'sell_price', 'buy_price')
-  print("PM")
+  m3 <- bind_cols(m3, data.frame(rep("private", length(m3$.id))))
+  colnames(m3) <- c('type', 'available', 'sell_price', 'buy_price', 'market')
   return(tbl_dt(m3))
 }
 
@@ -121,7 +123,6 @@ government <- function(cnum, govt)
   params$cnum <- cnum
   params$govt <- govt
   res <- doPOST(params)
-  print("G")
   return(tbl_dt(fromJSON(res)$GOVT))
 }
 
@@ -132,29 +133,26 @@ cashTurn <- function(cnum)
   params$cnum <- cnum
   params$turns <- 1
   res <- doPOST(params)
-  print("C")
   return(tbl_dt(fromJSON(res)$CASH))
 }
 
-explore <- function(cnum)
+exploreTurn <- function(cnum)
 {
   params <- default.params
   params$api_function <- "explore"
   params$cnum <- cnum
   params$turns <- 1
   res <- doPOST(params)
-  print("E")
   return(tbl_dt(fromJSON(res)$EXPLORE))
 }
 
-build <- function(cnum, ent=0, res=0, indy=0, mb=0, lab=0, farm=0, rig=0, cs=0)
+buildTurn <- function(cnum, ent=0, res=0, indy=0, mb=0, lab=0, farm=0, rig=0, cs=0)
 {
   params <- default.params
   params$api_function <- "build"
   params$cnum <- cnum
-  params$build <- list(farm=farm, ent=ent, res=res, indy=indy, mb=mb, lab=lab, farm=farm, rig=rig, cs=cs)
+  params$build <- list(ent=ent, res=res, indy=indy, mb=mb, lab=lab, farm=farm, rig=rig, cs=cs)
   res <- doPOST(params)
-  print("B")
   return(tbl_dt(fromJSON(res)$BUILD))
 }
 
@@ -165,7 +163,6 @@ privateMarketBuy <- function(cnum, m_tr=0, m_j=0, m_tu=0, m_ta=0, m_bu=0, m_oil=
   params$cnum <- cnum
   params$buy <- list( m_tr=m_tr, m_j=m_j, m_tu=m_tu, m_ta=m_ta, m_bu=m_bu, m_oil=m_oil)
   res <- doPOST(params)
-  print("PM")
   return(tbl_dt(fromJSON(res)$PM))
 }
 
@@ -186,7 +183,6 @@ tech <- function(cnum, mil=0, med=0, bus=0, res=0, agri=0, war=0, ms=0, weap=0, 
   params$cnum <- cnum
   params$tech <- list(mil=mil, med=med, bus=bus, res=res, agri=agri, war=war, ms=ms, weap=weap, indy=indy, spy=spy, sdi=sdi)
   res <- doPOST(params)
-  print("T")
   return(tbl_dt(fromJSON(res)$TECH))
 }
 
@@ -197,9 +193,28 @@ publicMarketInfo <- function(cnum)
   params$cnum <- cnum
   res <- doPOST(params)
   pm <- fromJSON(res)$MARKET
-  pm <- setNames(data.frame(cbind(pm$buy_price, pm$so_price, pm$available)), c('buy_price', 'so_price', 'available'))
-  pm$type <- rownames(pm)
-  return(tbl_df(pm))
+  
+  market.table <- tbl_dt(list())
+  
+  pm$available[pm$available == "NULL"] <- 0
+  pm$buy_price[pm$buy_price == "NULL"] <- 0
+  pm$so_price[pm$so_price == "NULL"] <- 0
+  
+  for(i in 1:length(pm$available))
+  {
+    name <- colnames(data.frame(pm$available[i]))
+    available <- as.numeric(pm$available[i])
+    buy_price <- as.numeric(pm$buy_price[i])
+    sell_price <- buy_price * 0.95 # sell 5% below market price
+    tbl.row <- tbl_dt(t(c(name, available, sell_price, buy_price, "public")))
+    market.table <- bind_rows(market.table, tbl.row)
+  }
+  colnames(market.table) <- c("type", "available","sell_price", "buy_price", "market")
+  market.table <- mutate(market.table, sell_price, sell_price = as.numeric(sell_price))
+  market.table <- mutate(market.table, buy_price, buy_price = as.numeric(buy_price))
+  market.table <- mutate(market.table, available, available = as.numeric(available))
+  
+  return(market.table)
 }
 
 
@@ -209,7 +224,10 @@ publicMarketGoods <- function(cnum)
   params$api_function <- "onmarket"
   params$cnum <- cnum
   res <- doPOST(params)
-  return(tbl_dt(fromJSON(res)$ONMARKET))
+  res <- fromJSON(res)$ONMARKET
+  if(length(res$goods) == 0){return(NULL)}
+  
+  return(tbl_df(res$goods))
 }
 
 publicMarketBuy <- function(cnum, m_tr=list(price=0, quantity=0), m_j=list(price=0, quantity=0), m_tu=list(price=0, quantity=0), m_ta=list(price=0, quantity=0), m_bu=list(price=0, quantity=0), m_oil=list(price=0, quantity=0), mil=list(price=0, quantity=0), med=list(price=0, quantity=0), bus=list(price=0, quantity=0), res=list(price=0, quantity=0), agri=list(price=0, quantity=0), war=list(price=0, quantity=0), ms=list(price=0, quantity=0), weap=list(price=0, quantity=0), indy=list(price=0, quantity=0), spy=list(price=0, quantity=0), sdi=list(price=0, quantity=0))
@@ -217,22 +235,90 @@ publicMarketBuy <- function(cnum, m_tr=list(price=0, quantity=0), m_j=list(price
   params <- default.params
   params$api_function <- "buy"
   params$cnum <- cnum
-  params$price <- list(m_tr=120)
-  params$quantity <- list(m_tr=1)
+  params$price <- list(m_tr=m_tr$price,
+                       m_j=m_j$price, 
+                       m_tu=m_tu$price, 
+                       m_ta=m_ta$price, 
+                       m_bu=m_bu$price, 
+                       m_oil=m_oil$price, 
+                       mil=mil$price, 
+                       med=med$price, 
+                       bus=bus$price, 
+                       res=res$price, 
+                       agri=agri$price, 
+                       war=war$price, 
+                       ms=ms$price, 
+                       weap=weap$price, 
+                       indy=indy$price, 
+                       spy=spy$price, 
+                       sdi=sdi$price)
+  
+  params$quantity <- list(m_tr=m_tr$quantity,
+                          m_j=m_j$quantity, 
+                          m_tu=m_tu$quantity, 
+                          m_ta=m_ta$quantity, 
+                          m_bu=m_bu$quantity, 
+                          m_oil=m_oil$quantity, 
+                          mil=mil$quantity, 
+                          med=med$quantity, 
+                          bus=bus$quantity, 
+                          res=res$quantity, 
+                          agri=agri$quantity, 
+                          war=war$quantity, 
+                          ms=ms$quantity, 
+                          weap=weap$quantity, 
+                          indy=indy$quantity, 
+                          spy=spy$quantity, 
+                          sdi=sdi$quantity)
   res <- doPOST(params)
   return((fromJSON(res)$BUY))
 }
 
-
-
-publicMarketSell <- function(cnum)
+publicMarketSell <- function(cnum, m_tr=list(price=0, quantity=0), m_j=list(price=0, quantity=0), m_tu=list(price=0, quantity=0), m_ta=list(price=0, quantity=0), m_bu=list(price=0, quantity=0), m_oil=list(price=0, quantity=0), mil=list(price=0, quantity=0), med=list(price=0, quantity=0), bus=list(price=0, quantity=0), res=list(price=0, quantity=0), agri=list(price=0, quantity=0), war=list(price=0, quantity=0), ms=list(price=0, quantity=0), weap=list(price=0, quantity=0), indy=list(price=0, quantity=0), spy=list(price=0, quantity=0), sdi=list(price=0, quantity=0))
 {
   params <- default.params
   params$api_function <- "sell"
   params$cnum <- cnum
-  params$price <- list(m_bu=500)
-  params$quantity <- list(m_bu=5000)
+  params$price <- list(m_tr=m_tr$price,
+                       m_j=m_j$price, 
+                       m_tu=m_tu$price, 
+                       m_ta=m_ta$price, 
+                       m_bu=m_bu$price, 
+                       m_oil=m_oil$price, 
+                       mil=mil$price, 
+                       med=med$price, 
+                       bus=bus$price, 
+                       res=res$price, 
+                       agri=agri$price, 
+                       war=war$price, 
+                       ms=ms$price, 
+                       weap=weap$price, 
+                       indy=indy$price, 
+                       spy=spy$price, 
+                       sdi=sdi$price)
+  
+  params$quantity <- list(m_tr=m_tr$quantity,
+                          m_j=m_j$quantity, 
+                          m_tu=m_tu$quantity, 
+                          m_ta=m_ta$quantity, 
+                          m_bu=m_bu$quantity, 
+                          m_oil=m_oil$quantity, 
+                          mil=mil$quantity, 
+                          med=med$quantity, 
+                          bus=bus$quantity, 
+                          res=res$quantity, 
+                          agri=agri$quantity, 
+                          war=war$quantity, 
+                          ms=ms$quantity, 
+                          weap=weap$quantity, 
+                          indy=indy$quantity, 
+                          spy=spy$quantity, 
+                          sdi=sdi$quantity)
   res <- doPOST(params)
   return((fromJSON(res)$SELL))
 }
 
+marketInfo <- function(cnum)
+{
+  return(bind_rows(privateMarketInfo(cnum), publicMarketInfo(cnum)))
+}

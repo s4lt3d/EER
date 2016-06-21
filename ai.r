@@ -15,17 +15,24 @@ options(warn=-2)
 this.dir <- dirname(parent.frame(2)$ofile)
 setwd(this.dir)
 
+if(!exists("advisor.history"))
+{
+  advisor.history <<- tbl_df(read.table(file="EE_History.csv", header = TRUE, sep=","))
+}
+
 source('web.r') # contains all the code for getting data in and out of the server
 source('stat.r')
 source('advisor.R')
 source('game_functions.r')
 
 getInfo()
-createCountry()
-server <- getServer()
 
+createCountry()
 repeat
 {
+  server <- getServer()
+
+
   for(cnum in server$cnum_list[[1]])
   {
     repeat
@@ -51,8 +58,12 @@ repeat
         },
         food={
           buy.Bushels(advisor.current$foodcon * 50)
-          build.Farms()
           print('food')
+        },
+        farm={
+          build.Farms()
+          tech.Agriculture() # make farms better
+          print('farms')
         },
         income={
           cash()
@@ -73,7 +84,6 @@ repeat
           {
             sell.Bushels(advisor.current$food - advisor.current$foodnet * 20)
           }
-          
           get.advisor(cnum) # make sure we are up to date for this
           buy.Tanks() # buy all tanks we have money for
           get.advisor(cnum) # make sure we are up to date for this
@@ -97,29 +107,8 @@ repeat
       }
       
     }
-   # plot.advisor(cnum, 100) # Show the last 100 interesting things
+    plot.advisor(cnum, 50) # Show the last 100 interesting things
   }
   print("sleeping for 8 minutes")
   Sys.sleep(120*4)
-  #dev.off()
 }
-
-
-#simpleAdvisor(cnum)
-#pm <- privateMarketInfo(cnum)
-#government(26, "T")
-
-
-#
-
-#publicMarketInfo(cnum)
-#privateMarketBuy(cnum, m_tr=100)
-#privateMarketSell(cnum, m_tr=100)
-#tech(cnum, agri=advisor.current$tpt)
-#publicMarketInfo(cnum)
-#publicMarketGoods(cnum)
-#publicMarketBuy(cnum, m_tr=list(price=120, quantity=1))
-#publicMarketSell(cnum)
-
-#country <- createCountry()
-

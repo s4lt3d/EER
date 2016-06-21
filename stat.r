@@ -30,60 +30,69 @@ getSlopeDebug <- function(table.df, title)
 
 decisionTable <- function(cnum=26)
 {
-  turns.money <- tail(distinct(select(filter(advisor.history, cnum==cnum), turns_played, money)), n=20)
+  country_num <- cnum
+  turns.money <- tail(distinct(select(filter(advisor.history, cnum==country_num), turns_played, money)), n=20)
   turns.money <- mutate(turns.money, money = normalit(money))
   money.slope <- getSlope(turns.money)
 
-  turns.income <- tail(distinct(select(filter(advisor.history, cnum==cnum), turns_played, income)), n=20)
+  turns.income <- tail(distinct(select(filter(advisor.history, cnum==country_num), turns_played, income)), n=20)
   turns.income <- mutate(turns.income, income = normalit(income))
   income.slope <- getSlope(turns.income)
 
-  turns.taxes <- tail(distinct(select(filter(advisor.history, cnum==cnum), turns_played, taxes)), n=20)
+  turns.taxes <- tail(distinct(select(filter(advisor.history, cnum==country_num), turns_played, taxes)), n=20)
   turns.taxes <- mutate(turns.taxes, taxes = normalit(taxes))
   taxes.slope <- getSlope(turns.taxes)
 
-  turns.pop <- tail(distinct(select(filter(advisor.history, cnum==cnum), turns_played, pop)), n=20)
+  turns.pop <- tail(distinct(select(filter(advisor.history, cnum==country_num), turns_played, pop)), n=20)
   turns.pop <- mutate(turns.pop, pop = normalit(pop))
   pop.slope <- getSlope(turns.pop)
 
-  turns.pci <- tail(distinct(select(filter(advisor.history, cnum==cnum), turns_played, pci)), n=20)
+  turns.pci <- tail(distinct(select(filter(advisor.history, cnum==country_num), turns_played, pci)), n=20)
   turns.pci <- mutate(turns.pci, pci = normalit(pci))
   pci.slope <- getSlope(turns.pci)
 
-  turns.food <- tail(distinct(select(filter(advisor.history, cnum==cnum), turns_played, food)), n=20)
+  turns.food <- tail(distinct(select(filter(advisor.history, cnum==country_num), turns_played, food)), n=20)
   turns.food <- mutate(turns.food, food = normalit(food))
   food.slope <- getSlope(turns.food)
   
-  advisor.cnum <- tail(select(filter(advisor.history, cnum==cnum)), n=1)
+  advisor.cnum <- tail(select(filter(advisor.history, cnum==country_num)), n=1)
 
   if(select(advisor.current, money) < 1000)
   {
     income.slope <- -10
   }
-  
-  if(select(advisor.current, food) < select(advisor.current, foodnet) * 2)
+
+  if(select(advisor.current, food) < abs(select(advisor.current, foodnet)) * 2) 
   {
     food.slope <- -9
   }
 
   building.needed <- 0
   
-  if(select(advisor.current, empty) < select(advisor.current, bpt) * 4)
+  if((select(advisor.current, empty) < select(advisor.current, bpt) * 4) & 
+      select(advisor.current, empty) < select(advisor.current, land) / 2)
   {
     building.needed <- -6
   }
+
+  build.farm <- 0
   
+  if(select(advisor.current, foodnet) < 0)
+  {
+    build.farm <- -5
+  }
+    
   cs.needed <- 0
-  
+
   if(select(advisor.current, b_cs) < 80)
   {
-    cs.needed <- -5
+    cs.needed <- -4
   }
   
   end.of.game = 100 # don't play this unless its really end of game
   
   
-  if(((advisor.current$reset_end - advisor.current$Time ) / 60) < 15) # end of game
+  if(((advisor.current$reset_end - advisor.current$local.time ) / 60) < 10) # end of game
   {
     if(advisor.current$money > 1000000)
     {
@@ -103,8 +112,9 @@ decisionTable <- function(cnum=26)
   decision.table <- rbind(decision.table, cbind('pop', pop.slope))
   decision.table <- rbind(decision.table, cbind('pci', pci.slope))
   decision.table <- rbind(decision.table, cbind('food', food.slope))
+  decision.table <- rbind(decision.table, cbind('farm', build.farm))
   decision.table <- rbind(decision.table, cbind('end.of.game', end.of.game))
-  decision.table <- rbind(decision.table, cbind('none', -0.5))
+  decision.table <- rbind(decision.table, cbind('none', 0))
   decision.table <- data.frame(decision.table)
   colnames(decision.table) <- c('type','weight')
   decision.table <- tbl_dt(decision.table)

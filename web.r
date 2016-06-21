@@ -1,7 +1,7 @@
 # This is the low level comms for talking to the server. 
 # See game_functions.r for game development
 
-base.url <- "http://www.earthempires.com/api"
+base.url <- "http://qz.earthempires.com/api"
 user.name <- "salted"
 api.key <- "49ee125ad5e9a3b81dfb771ac0d3d2fb"
 
@@ -65,7 +65,7 @@ createCountry <- function()
   params$api_function <- "create"
   params$cname <- paste("Rbot", sample(state.division, 1), randomNames(n=1,which.names="first"))
   res <- doPOST(params)
-  return(tbl_dt(fromJSON(res)$CREATE))
+  return(tbl_dt(fromJSON(res)$CNUM))
 }
 
 countryInfo <- function(cnum)

@@ -78,6 +78,8 @@ setCountry <- function(countryNum)
 max.Buildings <- function()
 {
   buildings.per.turn <- select(filter(advisor.current, cnum==cnum), bpt)$bpt
+  buildings.per.turn <- min(advisor.current$empty, buildings.per.turn)
+  buildings.per.turn <- min(as.integer(advisor.current$money / advisor.current$build_cost), buildings.per.turn)
   return(buildings.per.turn)
 }
 

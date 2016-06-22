@@ -1,5 +1,5 @@
 #Made with RStudio. R vs 3.2
-list.of.packages <- c("dplyr", "jsonlite", "httr", "randomNames", "plyr", "tidyr", "stats")
+list.of.packages <- c("dplyr", "jsonlite", "httr", "randomNames", "plyr", "tidyr", "stats", "RSQLite", "sqldf")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 library("dplyr") 
@@ -9,21 +9,28 @@ library("randomNames")
 library("plyr")
 library("tidyr")
 library("stats")
-
+library("RSQLite")
+library("sqldf")
 options(warn=-2)
 
 this.dir <- dirname(parent.frame(2)$ofile)
 setwd(this.dir)
+
+source('web.r') # contains all the code for getting data in and out of the server
+source('stat.r')
+source('advisor.R')
+source('game_functions.r')
+
+server = getServer()
 
 if(!exists("advisor.history"))
 {
   advisor.history <<- tbl_df(read.table(file="EE_History.csv", header = TRUE, sep=","))
 }
 
-source('web.r') # contains all the code for getting data in and out of the server
-source('stat.r')
-source('advisor.R')
-source('game_functions.r')
+# get only the current round for the bots
+advisor.history <- filter(advisor.history, round_num == server$round_num)
+
 
 getInfo()
 

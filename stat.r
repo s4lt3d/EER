@@ -67,22 +67,22 @@ decisionTable <- function(cnum=26)
     food.slope <- -9
   }
 
-  building.needed <- 0
+  building.needed <- 10
   
   if((select(advisor.current, empty) < select(advisor.current, bpt) * 4) & 
-      select(advisor.current, empty) < select(advisor.current, land) / 2)
+      select(advisor.current, empty) < select(advisor.current, land) / 3)
   {
     building.needed <- -6
   }
 
-  build.farm <- 0
+  build.farm <- 10
   
-  if(select(advisor.current, foodnet) < 0)
+  if(select(advisor.current, foodnet) < 0 & select(advisor.current, food) < 50000)
   {
     build.farm <- -5
   }
     
-  cs.needed <- 0
+  cs.needed <- 10
 
   if(select(advisor.current, b_cs) < 80)
   {
@@ -102,6 +102,11 @@ decisionTable <- function(cnum=26)
     {
       money.slope = -8
     }
+  }
+  
+  if(select(advisor.current, food) > 50000)
+  {
+    food.slope = 3
   }
   
   decision.table <- cbind('money', money.slope)

@@ -63,6 +63,7 @@ repeat
         farm={
           build.Farms()
           tech.Agriculture() # make farms better
+          buy.Bushels(advisor.current$foodcon * 50)
           print('farms')
         },
         income={
@@ -107,8 +108,8 @@ repeat
       }
       
     }
-    plot.advisor(cnum, 50) # Show the last 100 interesting things
+    #plot.advisor(cnum, 250) # Show the last 100 interesting things
   }
   print("sleeping for 8 minutes")
-  Sys.sleep(120*4)
+  Sys.sleep(120)
 }

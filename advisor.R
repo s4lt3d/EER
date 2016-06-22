@@ -16,10 +16,15 @@ plot.advisor <- function(cnum, tail.n=20)
     return(0)
   }
   
+  nwl <- distinct(select(advisor.cnum, turns_played, networth, land))
+  nwl <- advisor.cnum %>% mutate(networthland = networth / land) %>% select(turns_played, networthland) 
+  
+  
   getSlopeDebug(distinct(select(advisor.cnum, turns_played, networth)), "networth")
+  getSlopeDebug(nwl, "networth-land ratio")
   getSlopeDebug(tail(select(advisor.cnum, turns_played, money),n=tail.n), "money")
   getSlopeDebug(tail(select(advisor.cnum, turns_played, income),n=tail.n), "income")
-  getSlopeDebug(tail(select(advisor.cnum, turns_played, taxes),n=tail.n), "taxes")
+  #getSlopeDebug(tail(select(advisor.cnum, turns_played, taxes),n=tail.n), "taxes")
   getSlopeDebug(tail(select(advisor.cnum, turns_played, food),n=tail.n), "food")
   getSlopeDebug(tail(select(advisor.cnum, turns_played, foodnet),n=tail.n), "foodnet")
   getSlopeDebug(tail(select(advisor.cnum, turns_played, pop),n=tail.n), "pop")
@@ -42,7 +47,7 @@ get.advisor <- function(cnum)
   advisor.current <<- tbl_df(cbind(ac, distinct(select(server, -cnum_list)), setNames(tbl_dt(as.numeric(as.POSIXct(Sys.time()))), c('local.time'))))
   
   advisor.current <- mutate(advisor.current, countries_allowed=as.integer(countries_allowed))
-  write.table(advisor.current, file="EE_History.csv", sep=",", append = TRUE)
+  write.table(advisor.current, file="EE_History.csv", sep=",", append = TRUE, col.name=FALSE, row.names = FALSE)
   if(!exists("advisor.history"))
   {
     advisor.history <<- advisor.current

@@ -113,9 +113,8 @@ repeat
       if(advisor.current$turns <= 0){
         break
       }
-      
     }
-    #plot.advisor(cnum, 250) # Show the last 100 interesting things
+    plot.advisor(cnum, 250) # Show the last 100 interesting things
   }
   print("sleeping for 8 minutes")
   Sys.sleep(120)

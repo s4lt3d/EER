@@ -55,6 +55,7 @@ Initialize.State <- function(id=0)
   state$tax.rate <- 35
   state$troops.forces <- 100
   state$id <- id
+  state$food <- 100
   state <- tbl_dt(state)
   return(state)
 }
@@ -143,9 +144,77 @@ Calc.Destruction.Cost <- function(state)
   return(state)
 }
 
+Calc.Food.Consumption <- function(state)
+{
+  state <- state %>% mutate(food.consumption = 
+                            as.integer(
+                              (population * 0.03) + 
+                              (spies.forces * 0.005) + 
+                              ((troops.forces + jets.forces + turrets.forces) * 0.001) + 
+                              (tanks.forces * 0.003)   
+                            )
+                           )
+  
+  return(state)
+}
 
+Calc.Food.Produced <- function(state)
+{
+  state <- state %>% mutate(food.produced = 
+                              as.integer(
+                                (farms.zones * 5.3) + 
+                                (empty.land * 0.4) * gov.food.production.bonus * 
+                              agricultural.tech
+                              )
+                           )
+  return(state)
+}
+
+Calc.Food.Decay <- function(state)
+{
+  state <- state %>% mutate(food.decay = 
+                   as.integer((food - food.consumption + food.produced) / 1000)
+                  )
+  return(state)
+}
+
+Calc.Food <- function(state)
+{
+  state <- state %>% mutate(food = food + food.produced - (food.consumption + food.decay) )
+  return(state)
+}
+
+Init.Gov.Bonus <- function(state)
+{
+  state <- state %>% mutate(gov.food.production.bonus = 1,
+                            gov.strike.bonus = 1,
+                            gov.oil.production.bonus = 1,
+                            gov.pci.bonus = 1,
+                            gov.population.bonus = 1,
+                            gov.attack.gains.bonus = 1,
+                            gov.attack.turns.bonus = 1,
+                            gov.military.upkeep.costs.bonus = 1,
+                            gov.military.strength.bonus = 1,
+                            gov.spy.bonus = 1,
+                            gov.construction.speed.bonus = 1,
+                            gov.ghost.acres = 1,
+                            gov.technology.bonus = 1,
+                            gov.industrial.production.bonus = 1,
+                            gov.market.sales.size.cap.bonus = 1,
+                            gov.market.commision.bonus = 1,
+                            gov.private.market.military.cost.bonus = 1,
+                            gov.maximum.technology.bonus = 1,
+                            gov.maximum.population.bonus = 1,
+                            gov.gdi.bonus = 1,
+                            gov.exploration.bonus = 1,
+                            gov.maximum.pci.bonus = 1,
+                            gov.market.commision.bonus = 1
+                            )
+  return(state)
+}
 
 test.state <- Initialize.State()
+test.state <- Init.Gov.Bonus(test.state)
 test.state <- Calc.Buildings(test.state)
 test.state <- Calc.Empty.Land(test.state)
 test.state <- Calc.Tech.Total(test.state)
@@ -154,5 +223,15 @@ test.state <- Calc.Networth(test.state)
 test.state <- Calc.Construction.Cost(test.state)
 test.state <- Calc.Destruction.Cost(test.state)
 test.state <- Calc.Oil.Consumption(test.state)
+test.state <- Calc.Food.Produced(test.state)
+test.state <- Calc.Food.Consumption(test.state)
+test.state <- Calc.Food.Decay(test.state)
+#test.state <- Calc.Food(test.state)
+
+
 test.state$networth
-test.state$construction.cos
+test.state$construction.cost
+test.state$food
+test.state$food.produced
+test.state$food.consumption
+test.state$food.decay

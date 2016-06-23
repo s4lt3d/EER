@@ -1,7 +1,7 @@
 #Made with RStudio. R vs 3.2
 list.of.packages <- c("dplyr", "jsonlite", "httr", "randomNames", "plyr", "tidyr", "stats", "RSQLite", "sqldf")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages)
+if(length(new.packages)) install.packages(new.packages, repos='http://cran.us.r-project.org')
 library("dplyr") 
 library("jsonlite") 
 library("httr") 
@@ -106,7 +106,7 @@ repeat
           tech.Residential()
           tech.Business()
           build.Residences()
-          build.Research.Labs()
+         # build.Research.Labs()
           print('none')
         }
       )
@@ -114,7 +114,7 @@ repeat
         break
       }
     }
-    plot.advisor(cnum, 250) # Show the last 100 interesting things
+    #plot.advisor(cnum, 250) # Show the last 100 interesting things
   }
   print("sleeping for 8 minutes")
   Sys.sleep(120)

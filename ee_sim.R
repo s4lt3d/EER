@@ -213,6 +213,29 @@ Init.Gov.Bonus <- function(state)
   return(state)
 }
 
+Calc.PCI <- function(state)
+{
+  state <- state %>% mutate(pci = 22.5 * (1 - tax.rate) * 
+                            (1 + ((networth/land)/90000)) * 
+                            (1 + (2 * (enterprise.zones/land))) * 
+                            business.tech * gov.pci.bonus  
+  )
+  return(state)
+}
+
+Calc.Revenue <- function(state)
+{
+  state <- mutate(revenue = pci * population * tax.rate)
+  return(state)
+}
+
+Calc.Buildings.Per.Turn <- function(state)
+{
+  state <- state %>% mutate(buildings.per.turn = as.integer((construction.sites/4) + 5) * gov.construction.speed.bonus)
+  
+  return(state)
+}
+
 test.state <- Initialize.State()
 test.state <- Init.Gov.Bonus(test.state)
 test.state <- Calc.Buildings(test.state)
@@ -227,7 +250,6 @@ test.state <- Calc.Food.Produced(test.state)
 test.state <- Calc.Food.Consumption(test.state)
 test.state <- Calc.Food.Decay(test.state)
 #test.state <- Calc.Food(test.state)
-
 
 test.state$networth
 test.state$construction.cost

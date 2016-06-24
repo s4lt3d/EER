@@ -35,12 +35,13 @@ advisor.history <- filter(advisor.history, round_num == server$round_num)
 getInfo()
 
 createCountry()
+
 repeat
 {
   server <- getServer()
 
 
-  for(cnum in server$cnum_list[[1]])
+  for(cnum in server$cnum_list[[1]][1:5]) # play only the first 5 countries
   {
     repeat
     {
@@ -119,7 +120,7 @@ repeat
         break
       }
     }
-    plot.advisor(cnum, 250) # Show the last 100 interesting things
+    #plot.advisor(35, 2500) # Show the last 100 interesting things
   }
   print("sleeping for 8 minutes")
   Sys.sleep(120)

@@ -12,8 +12,8 @@ library("stats")
 library("RSQLite")
 options(warn=-2)
 
-this.dir <- dirname(parent.frame(2)$ofile)
-setwd(this.dir)
+#this.dir <- dirname(parent.frame(2)$ofile)
+#setwd(this.dir)
 
 source('web.r') # contains all the code for getting data in and out of the server
 source('stat.r')

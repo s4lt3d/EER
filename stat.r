@@ -75,14 +75,14 @@ decisionTable <- function(cnum=26)
     building.needed <- -6
   }
 
-  build.farm <- 10
+  build.farm <- 5
   
   if(select(advisor.current, foodnet) < 0 & select(advisor.current, food) < 50000)
   {
     build.farm <- -5
   }
     
-  cs.needed <- 10
+  cs.needed <- 100
 
   if(select(advisor.current, b_cs) < 80)
   {
@@ -96,17 +96,17 @@ decisionTable <- function(cnum=26)
   {
     if(advisor.current$money > 1000000)
     {
-      end.of.game = -8
+      end.of.game <- -8
     }
     else
     {
-      money.slope = -8
+      money.slope <- -8
     }
   }
   
   if(select(advisor.current, food) > 50000)
   {
-    food.slope = 3
+    food.slope <- 3
   }
   
   decision.table <- cbind('money', money.slope)

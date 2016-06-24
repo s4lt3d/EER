@@ -92,7 +92,7 @@ decisionTable <- function(cnum=26)
   end.of.game = 100 # don't play this unless its really end of game
   
   
-  if(((advisor.current$reset_end - advisor.current$local.time ) / 60) < 10) # end of game
+  if(((advisor.current$reset_end - advisor.current$local.time ) / 60) < 20) # end of game
   {
     if(advisor.current$money > 1000000)
     {

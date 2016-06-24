@@ -1,5 +1,5 @@
 #Made with RStudio. R vs 3.2
-print('2016-06-13 GREEN')
+print('2016-06-13 BLUE')
 list.of.packages <- c("dplyr", "jsonlite", "httr", "randomNames", "tidyr", "stats", "RSQLite", "sqldf")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, repos='http://cran.us.r-project.org')
@@ -52,77 +52,101 @@ repeat
       
       decisions <- decisionTable(cnum)
       
-      switch(as.character(decisions$type[1]), 
-         b_cs={
-           build.Construction.Sites()
-           print('construction')
-         },
-         explore={
-           explore()
-           print('explore')
-         },
-         pop={
-          build.Residences()
-          print('pop')
-        },
-        food={
-          if(buy.Bushels(advisor.current$foodcon * 50) == FALSE)
+      for(i in 1:length(decisions$type)) 
+      {
+        switch(as.character(decisions$type[i]), 
+           b_cs={
+             if(build.Construction.Sites()){
+               print('construction')
+               break
+             }
+             
+           },
+           explore={
+             if(explore()) {
+               print('explore')
+               break
+             }
+           },
+           pop={
+            if(build.Residences()) {
+              print('pop')
+              break
+            }
+          },
+          food={
+            if(buy.Bushels(advisor.current$foodcon * 50))
+            {
+              print('food')
+              break
+            }
+          },
+          farm={
+            
+            if(build.Farms()) {
+              tech.Agriculture() # make farms better
+              buy.Bushels(advisor.current$foodcon * 50)
+              print('farms')
+              break
+            }
+          },
+          income={
+            if(cash()) {
+              tech.Business()
+              print('income')
+              break
+            }
+          },
+          money={
+            if(cash()) {
+              print('money')
+              break
+            }
+          },
+          taxes={ 
+            if(build.Enterprise.Zones()) {
+              print('taxes')
+              break
+            }
+          },
+          end.of.game={
+            #sell of all but about 10 turns worth of food
+            if(advisor.current$food > advisor.current$foodnet * 20)
+            {
+              sell.Bushels(advisor.current$food - advisor.current$foodnet * 20)
+            }
+            get.advisor(cnum) # make sure we are up to date for this
+            buy.Tanks() # buy all tanks we have money for
+            get.advisor(cnum) # make sure we are up to date for this
+            buy.Troops() # buy all troops we have money for
+            get.advisor(cnum) # make sure we are up to date for this
+            buy.Turrets() # buy all turrets we have money for
+            get.advisor(cnum) # make sure we are up to date for this
+            buy.Jets() # buy all jets we have money for
+            print('end of game')
+          },
           {
-            cash()
+            if(build.Residences()) {
+              tech.Residential()
+              tech.Business()
+              if(sample(1:10, 1) > 5) {
+                build.Research.Labs()
+                
+              }
+              print('none / residences')
+              break
+            }
+            
           }
-          
-          print('food')
-        },
-        farm={
-          build.Farms()
-          tech.Agriculture() # make farms better
-          buy.Bushels(advisor.current$foodcon * 50)
-          print('farms')
-        },
-        income={
-          cash()
-          tech.Business()
-          print('income')
-        },
-        money={
-          cash()
-          print('money')
-        },
-        taxes={ 
-          build.Enterprise.Zones()
-          print('taxes')
-        },
-        end.of.game={
-          #sell of all but about 10 turns worth of food
-          if(advisor.current$food > advisor.current$foodnet * 20)
-          {
-            sell.Bushels(advisor.current$food - advisor.current$foodnet * 20)
-          }
-          get.advisor(cnum) # make sure we are up to date for this
-          buy.Tanks() # buy all tanks we have money for
-          get.advisor(cnum) # make sure we are up to date for this
-          buy.Troops() # buy all troops we have money for
-          get.advisor(cnum) # make sure we are up to date for this
-          buy.Turrets() # buy all turrets we have money for
-          get.advisor(cnum) # make sure we are up to date for this
-          buy.Jets() # buy all jets we have money for
-          print('end of game')
-          cash()
-        },
-        {
-          tech.Residential()
-          tech.Business()
-          build.Residences()
-         # build.Research.Labs()
-          print('none')
-        }
-      )
+        ) # end switch
+      }   # end for
+      
       if(advisor.current$turns <= 0){
         break
       }
     }
-    #plot.advisor(35, 2500) # Show the last 100 interesting things
+    plot.advisor(cnum, 2500) # Show the last 100 interesting things
   }
-  print("sleeping for 8 minutes")
-  Sys.sleep(120)
+  print("sleeping for 10 minutes")
+  Sys.sleep(600)
 }

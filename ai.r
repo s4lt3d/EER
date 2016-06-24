@@ -1,4 +1,5 @@
 #Made with RStudio. R vs 3.2
+print('2016-06-13 GREEN')
 list.of.packages <- c("dplyr", "jsonlite", "httr", "randomNames", "plyr", "tidyr", "stats", "RSQLite", "sqldf")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, repos='http://cran.us.r-project.org')

@@ -64,7 +64,11 @@ repeat
           print('pop')
         },
         food={
-          buy.Bushels(advisor.current$foodcon * 50)
+          if(buy.Bushels(advisor.current$foodcon * 50) == FALSE)
+          {
+            cash()
+          }
+          
           print('food')
         },
         farm={
@@ -101,6 +105,7 @@ repeat
           get.advisor(cnum) # make sure we are up to date for this
           buy.Jets() # buy all jets we have money for
           print('end of game')
+          cash()
         },
         {
           tech.Residential()
@@ -114,7 +119,7 @@ repeat
         break
       }
     }
-    #plot.advisor(cnum, 250) # Show the last 100 interesting things
+    plot.advisor(cnum, 250) # Show the last 100 interesting things
   }
   print("sleeping for 8 minutes")
   Sys.sleep(120)

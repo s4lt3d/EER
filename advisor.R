@@ -50,7 +50,7 @@ get.advisor <- function(cnum)
   if(file.exists("EE_History.csv")){
     write.table(advisor.current, file="EE_History.csv", sep=",", append = TRUE, col.name=FALSE, row.names = FALSE)
   } else {
-    write.table(advisor.current, file="EE_History.csv", sep=",", append = TRUE, col.name=FALSE, row.names = TRUE)
+    write.table(advisor.current, file="EE_History.csv", sep=",", append = TRUE, col.name=TRUE, row.names = FALSE)
   }
   
   if(!exists("advisor.history"))

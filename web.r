@@ -112,8 +112,6 @@ privateMarketInfo <- function(cnum)
   return(tbl_dt(m3))
 }
 
-pm <-privateMarketInfo(26)
-
 #!
 # M D T F H(Theocracy) C I(Dictatorship) R 
 government <- function(cnum, govt)

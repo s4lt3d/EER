@@ -31,12 +31,16 @@ doPOST <- function(params)
   post.url <- base.url 
   p <- toJSON(params, auto_unbox=TRUE)
   req <- ""
-  #print(p)
   tryCatch( # POST can timeout so catch this. 
     req <- POST(url=post.url, body=list(api_payload=p), encode="form"),
-    error=function(X){ req <-'{"response":"ERROR"}'}
+    error=function(X){ req <-""}
   )
+  if(length(req) < 5) {
+    json <- '{"response":"ERROR"}'
+    return(json)
+  }
   json <- content(req, "text", encoding = "UTF-8")
+  
   #print(json)
   json <- fixjson(json)
   return(json)

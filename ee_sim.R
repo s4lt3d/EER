@@ -231,10 +231,35 @@ Calc.Revenue <- function(state)
 
 Calc.Buildings.Per.Turn <- function(state)
 {
-  state <- state %>% mutate(buildings.per.turn = as.integer((construction.sites/4) + 5) * gov.construction.speed.bonus)
+  state <- state %>% mutate(buildings.per.turn = as.integer((construction.sites/4) + 5) * 
+                              gov.construction.speed.bonus)
   
   return(state)
 }
+
+Calc.Tech.Per.Turn <- function(state)
+{
+  state <- mutate(tech.per.turn = round(0.17 * research.zones * 
+                                          (1 + research.zones / land)) + 3)
+  return(state)
+}
+
+Calc.Land.Upkeep <- function(state)
+{
+  state <- mutate(land.upkeep = ifelse (land < 1500, 
+                                       (land ^ 2) * 7 / 1500 + land * 3, 
+                                       land * 10))
+  return(state)
+}
+
+Calc.Military.Upkeep <- function(state)
+{
+  state <- state %>% mutate(military.upkeep = ((troops.forces * .11) + (jets.forces * .14) + (turrets.forces * .18) + (tanks.forces * .57) + spies.forces) * military.tech * (1 + networth/40000000) * gov.military.upkeep.costs.bonus * 
+                              min(0.61, 1 - 1.3 * (military.zones / land)))  
+  return(state)
+  
+}
+
 
 test.state <- Initialize.State()
 test.state <- Init.Gov.Bonus(test.state)

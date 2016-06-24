@@ -47,7 +47,12 @@ get.advisor <- function(cnum)
   advisor.current <<- tbl_df(cbind(ac, distinct(select(server, -cnum_list)), setNames(tbl_dt(as.numeric(as.POSIXct(Sys.time()))), c('local.time'))))
   
   advisor.current <- mutate(advisor.current, countries_allowed=as.integer(countries_allowed))
-  write.table(advisor.current, file="EE_History.csv", sep=",", append = TRUE, col.name=FALSE, row.names = FALSE)
+  if(file.exists("EE_History.csv")){
+    write.table(advisor.current, file="EE_History.csv", sep=",", append = TRUE, col.name=FALSE, row.names = FALSE)
+  } else {
+    write.table(advisor.current, file="EE_History.csv", sep=",", append = TRUE, col.name=FALSE, row.names = TRUE)
+  }
+  
   if(!exists("advisor.history"))
   {
     advisor.history <<- advisor.current

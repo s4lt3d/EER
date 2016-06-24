@@ -148,6 +148,15 @@ repeat
     }
     plot.advisor(cnum, 2500) # Show the last 100 interesting things
   }
-  print("sleeping for 10 minutes")
-  Sys.sleep(600)
+  
+  
+  if((advisor.current$reset_end - advisor.current$time) / 3600 > 3)
+  {
+    print("sleeping for 100 minutes")
+    Sys.sleep(6000)  
+  } else { # sleep less near end of game
+    print("sleeping for 10 minutes")
+    Sys.sleep(600)  
+  }
+  
 }

@@ -27,16 +27,15 @@ if(!exists("advisor.history"))
   if(file.exists("EE_History.csv"))
   {
     advisor.history <<- tbl_df(read.table(file="EE_History.csv", header = TRUE, sep=","))
+    advisor.history <- filter(advisor.history, round_num == server$round_num)
   }
 }
 
 # get only the current round for the bots
-advisor.history <- filter(advisor.history, round_num == server$round_num)
-
 
 getInfo()
 
-createCountry()
+#createCountry()
 
 repeat
 {

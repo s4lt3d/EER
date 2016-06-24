@@ -1,17 +1,15 @@
 #Made with RStudio. R vs 3.2
 print('2016-06-13 GREEN')
-list.of.packages <- c("dplyr", "jsonlite", "httr", "randomNames", "plyr", "tidyr", "stats", "RSQLite", "sqldf")
+list.of.packages <- c("dplyr", "jsonlite", "httr", "randomNames", "tidyr", "stats", "RSQLite", "sqldf")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, repos='http://cran.us.r-project.org')
 library("dplyr") 
 library("jsonlite") 
 library("httr") 
 library("randomNames") 
-library("plyr")
 library("tidyr")
 library("stats")
 library("RSQLite")
-library("sqldf")
 options(warn=-2)
 
 this.dir <- dirname(parent.frame(2)$ofile)

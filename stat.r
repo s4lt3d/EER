@@ -89,7 +89,7 @@ decisionTable <- function(cnum=26)
     cs.needed <- -4
   }
   
-  end.of.game = 100 # don't play this unless its really end of game
+  end.of.game <- 10000 # don't play this unless its really end of game
   
   
   if(((advisor.current$reset_end - advisor.current$local.time ) / 60) < 20) # end of game
@@ -118,8 +118,11 @@ decisionTable <- function(cnum=26)
   decision.table <- rbind(decision.table, cbind('pci', pci.slope))
   decision.table <- rbind(decision.table, cbind('food', food.slope))
   decision.table <- rbind(decision.table, cbind('farm', build.farm))
-  decision.table <- rbind(decision.table, cbind('end.of.game', end.of.game))
   decision.table <- rbind(decision.table, cbind('none', 0))
+  if(end.of.game < 100){ # don't include end of game unless its actually the end of game
+    decision.table <- rbind(decision.table, cbind('end.of.game', end.of.game))
+  }
+  
   decision.table <- data.frame(decision.table)
   colnames(decision.table) <- c('type','weight')
   decision.table <- tbl_dt(decision.table)

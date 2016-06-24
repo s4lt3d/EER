@@ -37,6 +37,7 @@ doPOST <- function(params)
   )
   if(length(req) < 5) {
     json <- '{"response":"ERROR"}'
+    print('Timeout')
     return(json)
   }
   json <- content(req, "text", encoding = "UTF-8")

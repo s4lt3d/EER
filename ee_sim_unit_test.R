@@ -52,9 +52,42 @@ Test.Inialize.State <- function()
   {
     return(TRUE)
   } else {
-    print("Failed Initialize State")
+    print("Failed Initialize.State")
     return(FALSE)
   }
 }
 
+Test.calc.Buildings <- function()
+{
+  state <- Initialize.State()
+  state <- state %>% mutate(
+      enterprise.zones = 23,
+      residences.zones = 9,
+      industrial.zones = 43,
+      military.zones = 27,
+      research.zones = 62,
+      farms.zones = 11,
+      oil.zones = 21, 
+      land = 1000
+  )
+  
+  state <- Calc.Buildings(state)
+  
+  test <- state %>% filter(
+    buildings == (23+9+43+27+62+11+21),
+    land == 1000
+  )
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    print("Failed Calc.Buildings")
+    return(FALSE)
+  }
+  
+  
+}
+
 Test.Inialize.State()
+Test.calc.Buildings()

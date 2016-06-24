@@ -111,7 +111,9 @@ decisionTable <- function(cnum=26)
   
   decision.table <- cbind('money', money.slope)
   decision.table <- rbind(decision.table, cbind('explore', building.needed))
-  decision.table <- rbind(decision.table, cbind('b_cs', cs.needed))
+  if(cs.needed < 0) { # don't include construction sites as fall through
+    decision.table <- rbind(decision.table, cbind('b_cs', cs.needed))
+  }
   decision.table <- rbind(decision.table, cbind('income', income.slope))
   decision.table <- rbind(decision.table, cbind('taxes', taxes.slope))
   decision.table <- rbind(decision.table, cbind('pop', pop.slope))

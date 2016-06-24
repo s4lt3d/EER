@@ -20,14 +20,13 @@ source('stat.r')
 source('advisor.R')
 source('game_functions.r')
 
-server = getServer()
+server <<- getServer()
 
 if(!exists("advisor.history"))
 {
   if(file.exists("EE_History.csv"))
   {
     advisor.history <<- tbl_df(read.table(file="EE_History.csv", header = TRUE, sep=","))
-    server <- getServer()
     advisor.history <- filter(advisor.history, round_num == server$round_num)
   }
 }

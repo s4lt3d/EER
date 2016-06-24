@@ -24,7 +24,10 @@ server = getServer()
 
 if(!exists("advisor.history"))
 {
-  advisor.history <<- tbl_df(read.table(file="EE_History.csv", header = TRUE, sep=","))
+  if(file.exists("EE_History.csv"))
+  {
+    advisor.history <<- tbl_df(read.table(file="EE_History.csv", header = TRUE, sep=","))
+  }
 }
 
 # get only the current round for the bots

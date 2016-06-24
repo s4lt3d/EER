@@ -56,6 +56,7 @@ Initialize.State <- function(id=0)
   state$troops.forces <- 100
   state$id <- id
   state$food <- 100
+  state$government <- "Monarchy"
   state <- tbl_dt(state)
   return(state)
 }
@@ -257,7 +258,6 @@ Calc.Military.Upkeep <- function(state)
   state <- state %>% mutate(military.upkeep = ((troops.forces * .11) + (jets.forces * .14) + (turrets.forces * .18) + (tanks.forces * .57) + spies.forces) * military.tech * (1 + networth/40000000) * gov.military.upkeep.costs.bonus * 
                               min(0.61, 1 - 1.3 * (military.zones / land)))  
   return(state)
-  
 }
 
 

@@ -150,10 +150,10 @@ repeat
   }
   
   
-  if((advisor.current$reset_end - advisor.current$time) / 3600 > 3)
+  if((advisor.current$reset_end - advisor.current$time) / 3600 > 5)
   {
-    print("sleeping for 100 minutes")
-    Sys.sleep(6000)  
+    print("sleeping for up to two hours")
+    Sys.sleep(sample(600:14400, 1))  
   } else { # sleep less near end of game
     print("sleeping for 10 minutes")
     Sys.sleep(600)  

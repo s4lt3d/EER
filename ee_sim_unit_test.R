@@ -52,7 +52,7 @@ Test.Inialize.State <- function()
   {
     return(TRUE)
   } else {
-    print("Failed Initialize.State")
+    stop("Unit Test Failed!  Test.Initialize.State")
     return(FALSE)
   }
 }
@@ -82,7 +82,7 @@ Test.Calc.Buildings <- function()
   {
     return(TRUE)
   } else {
-    print("Failed Calc.Buildings")
+    stop("Unit Test Failed!  Test.Calc.Buildings")
     return(FALSE)
   }
 }
@@ -109,7 +109,7 @@ Test.Calc.Empty.Land <- function()
   {
     return(TRUE)
   } else {
-    print("Failed Calc.Empty.Land")
+    stop("Unit Test Failed!  Test.Calc.Empty.Land")
     return(FALSE)
   }
 }
@@ -139,12 +139,72 @@ Test.Calc.Tech.Total <- function(state)
   {
     return(TRUE)
   } else {
-    print("Failed Calc.Tech.Total")
+    stop("Unit Test Failed!  Test.Calc.Tech.Total")
     return(FALSE)
   }
 }
+
+
+Test.Calc.Missiles.Total <- function()
+{
+  state <- Initialize.State()
+  
+  state <- state %>% mutate(nuclear.missiles.forces = 6,
+                              chemical.missiles.forces = 8,
+                              cruise.missiles.forces = 23
+  )
+  state <- Calc.Missiles.Total(state)
+  
+  test <- state %>% filter(missles.total == (6 + 8 + 23))
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    stop("Unit Test Failed!  Test.Calc.Missiles.Total")
+    return(FALSE)
+  }
+}
+
+Test.Calc.Networth <- function(state)
+{
+  state <- Initialize.State()
+  state <- state %>% mutate(
+    troops.forces = 1876,
+      jets.forces = 1320,
+      turrets.forces = 1586,
+      tanks.forces = 1310,
+      spies.forces = 46,
+      tech.total = 442,
+      land = 8277,
+      buildings = (8277 - 4029),
+      money = 20893499,
+      food = 7329195,
+      missles.total = 2,
+      population = 101738,
+      oil = 4794
+  )
+  
+  state <- Calc.Networth(state)
+  print(state$networth)
+  
+  test <- state %>% filter(networth == 557753)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    stop("Unit Test Failed!  Test.Calc.Networth")
+    return(FALSE)
+  }
+  
+  return(state)
+}
+
 
 Test.Inialize.State()
 Test.Calc.Buildings()
 Test.Calc.Empty.Land()
 Test.Calc.Tech.Total()
+Test.Calc.Missiles.Total()
+Test.Calc.Networth()

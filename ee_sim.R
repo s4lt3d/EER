@@ -109,19 +109,19 @@ Calc.Missiles.Total <- function(state)
 Calc.Networth <- function(state)
 {
   state <- state %>% mutate(networth = as.integer(
-                              (troops.forces * 0.5) + 
-                              (jets.forces * 0.6) + 
-                              (turrets.forces * 0.6) + 
-                              (tanks.forces * 2) + 
-                              (spies.forces * 1) + 
-                              (tech.total * 2) + 
-                              (land * 45) + 
-                              (buildings * 35) + 
-                              (money / 20000) + 
-                              (food/1000) + 
-                              (missles.total * 2500) + 
-                              (population/6) + 
-                              (oil/100))
+    (troops.forces * 0.5) + 
+      (jets.forces * 0.6) + 
+      (turrets.forces * 0.6) + 
+      (tanks.forces * 2) + 
+      (spies.forces * 1) + 
+      (tech.total * 2) + 
+      (land * 45) + 
+      (buildings * 35) + 
+      (money / 20000) + 
+      (food/1000) + 
+      as.integer(missles.total * 2500) + 
+      as.integer(population/6) + 
+      as.integer(oil/100))
                             )
   return(state)
 }

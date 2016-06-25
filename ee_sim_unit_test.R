@@ -580,7 +580,7 @@ Test.Calc.Military.Upkeep <- function()
 }
 
 
-
+system.time( replicate(1000000, function(x) { 
 Test.Inialize.State()
 Test.Calc.Buildings()
 Test.Calc.Empty.Land()
@@ -600,3 +600,5 @@ Test.Calc.Buildings.Per.Turn()
 Test.Calc.Tech.Per.Turn()
 Test.Calc.Land.Upkeep()
 Test.Calc.Military.Upkeep()
+}
+) )

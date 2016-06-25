@@ -2,6 +2,17 @@ library(dplyr)
 
 # This is a full sim of EE so that bots can train faster
 
+# TODO 
+# Rebuilding Cost ?
+# Alliance Upkeep
+# GDI Penalty
+# Total Expense
+# Technology Percentages
+# SPAL
+# Standard Strike
+# Planned Strike
+# Government Changes
+
 Initialize.State <- function(id=0)
 {
   state.Names <- c("id", "money","tax.rate", "government", "food", "oil", 
@@ -28,7 +39,7 @@ Initialize.State <- function(id=0)
   state$troops.forces <- 100
   state$id <- id
   state$food <- 100
-  state$government <- "Monarchy"
+  state$government <- "M"
   state <- tbl_dt(state)
   return(state)
 }
@@ -135,7 +146,7 @@ Calc.Food.Consumption <- function(state)
   return(state)
 }
 
-#Different formula than publish version. Matches game through experiment
+#Different than wiki
 Calc.Food.Produced <- function(state)
 {
   state <- Calc.Empty.Land(state)
@@ -240,7 +251,6 @@ Calc.Land.Upkeep <- function(state)
 # different than wiki
 Calc.Military.Upkeep <- function(state)
 {
-  
   state <- state %>% mutate(milcost = 
                    ifelse(military.zones / land < 0.295, 
                           1-1.3*round(military.zones/land, 2), 0.61))
@@ -260,32 +270,61 @@ Calc.Military.Upkeep <- function(state)
   return(state)
 }
 
-#milconst = 
-#if (round($this->country['b_mb']/max(1, $this->country['land']), 2) ) < 0.295
-#  1-1.3*round($this->country['b_mb']/max(1, $this->country['land']), 2) : 
-#  0.61);
+
+Calc.Change.Government <- function(state)
+{
+  state <- state %>% mutate(food                     = as.integer(food * 0.86),
+                            money                    = as.integer(money * 0.86),
+                            enterprise.zones         = as.integer(enterprise.zones * 0.86),
+                            residences.zones         = as.integer(residences.zones * 0.86),
+                            industrial.zones         = as.integer(industrial.zones * 0.86),
+                            military.zones           = as.integer(military.zones * 0.86),
+                            research.zones           = as.integer(research.zones * 0.86),
+                            farms.zones              = as.integer(farms.zones * 0.86),
+                            oil.zones                = as.integer(oil.zones * 0.86),
+                            construction.zones       = as.integer(construction.zones * 0.86),
+                            military.tech            = as.integer(military.tech * 0.86),
+                            medical.tech             = as.integer(medical.tech * 0.86),
+                            business.tech            = as.integer(business.tech * 0.86),
+                            residential.tech         = as.integer(residential.tech * 0.86),
+                            agricultural.tech        = as.integer(agricultural.tech * 0.86),
+                            warfare.tech             = as.integer(warfare.tech * 0.86),
+                            military.strategy.tech   = as.integer(military.strategy.tech * 0.86),
+                            weapons.tech             = as.integer(weapons.tech * 0.86),
+                            industrial.tech          = as.integer(industrial.tech * 0.86),
+                            spy.tech                 = as.integer(spy.tech * 0.86),
+                            sdi.tech                 = as.integer(sdi.tech * 0.86),
+                            spies.forces             = as.integer(spies.forces * 0.86),
+                            troops.forces            = as.integer(troops.forces * 0.86),
+                            jets.forces              = as.integer(jets.forces * 0.86),
+                            turrets.forces           = as.integer(turrets.forces * 0.86),
+                            tanks.forces             = as.integer(tanks.forces * 0.86),
+                            nuclear.missiles.forces  = as.integer(nuclear.missiles.forces * 0.86),
+                            chemical.missiles.forces = as.integer(chemical.missiles.forces * 0.86),
+                            cruise.missiles.forces   = as.integer(cruise.missiles.forces * 0.86)
+                          )
+  return(state)
+}
 
 
 
 
-
-test.state <- Initialize.State()
-test.state <- Init.Gov.Bonus(test.state)
-test.state <- Calc.Buildings(test.state)
-test.state <- Calc.Empty.Land(test.state)
-test.state <- Calc.Tech.Total(test.state)
-test.state <- Calc.Missiles.Total(test.state)
-test.state <- Calc.Networth(test.state)
-test.state <- Calc.Construction.Cost(test.state)
-test.state <- Calc.Destruction.Cost(test.state)
-test.state <- Calc.Oil.Consumption(test.state)
-test.state <- Calc.Food.Produced(test.state)
-test.state <- Calc.Food.Consumption(test.state)
-test.state <- Calc.Food.Decay(test.state)
-#test.state <- Calc.Food(test.state)
-
-
-test.state$food
-test.state$food.produced
-test.state$food.consumption
-test.state$food.decay
+# test.state <- Initialize.State()
+# test.state <- Init.Gov.Bonus(test.state)
+# test.state <- Calc.Buildings(test.state)
+# test.state <- Calc.Empty.Land(test.state)
+# test.state <- Calc.Tech.Total(test.state)
+# test.state <- Calc.Missiles.Total(test.state)
+# test.state <- Calc.Networth(test.state)
+# test.state <- Calc.Construction.Cost(test.state)
+# test.state <- Calc.Destruction.Cost(test.state)
+# test.state <- Calc.Oil.Consumption(test.state)
+# test.state <- Calc.Food.Produced(test.state)
+# test.state <- Calc.Food.Consumption(test.state)
+# test.state <- Calc.Food.Decay(test.state)
+# #test.state <- Calc.Food(test.state)
+# 
+# test.state$food
+# test.state$food.produced
+# test.state$food.consumption
+# test.state$food.decay

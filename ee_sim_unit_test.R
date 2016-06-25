@@ -2,8 +2,10 @@
 
 source("ee_sim.R")
 
+
 Test.Inialize.State <- function()
 {
+  y <<- y + 1
   state <- Initialize.State()
   
   test <- state %>% filter(
@@ -579,9 +581,84 @@ Test.Calc.Military.Upkeep <- function()
   }
 }
 
+Test.Calc.Change.Government <- function()
+{
+  state <- Initialize.State()  
+  state <- state %>% mutate(food                     = 11907444,
+                            money                    = 79851821,
+                            enterprise.zones         = 5,
+                            residences.zones         = 2185,
+                            industrial.zones         = 5,
+                            military.zones           = 5,
+                            research.zones           = 821,
+                            farms.zones              = 4110,
+                            oil.zones                = 51,
+                            construction.zones       = 126,
+                            military.tech            = 20,
+                            medical.tech             = 30,
+                            business.tech            = 2856,
+                            residential.tech         = 3140,
+                            agricultural.tech        = 253,
+                            warfare.tech             = 9,
+                            military.strategy.tech   = 8,
+                            weapons.tech             = 7,
+                            industrial.tech          = 6,
+                            spy.tech                 = 5,
+                            sdi.tech                 = 4,
+                            spies.forces             = 355,
+                            troops.forces            = 2494,
+                            jets.forces              = 1938,
+                            turrets.forces           = 2204,
+                            tanks.forces             = 1310,
+                            nuclear.missiles.forces  = 1,
+                            chemical.missiles.forces = 1,
+                            cruise.missiles.forces   = 1)
+  
+   state <- Calc.Change.Government(state)
+  
+   test <- state %>% filter(food                     == 10240401,
+                            money                    == 68672566,
+                            enterprise.zones         == 4,
+                            residences.zones         == 1879,
+                            industrial.zones         == 4,
+                            military.zones           == 4,
+                            research.zones           == 706,
+                            farms.zones              == 3534,
+                            oil.zones                == 43,
+                            construction.zones       == 108,
+                            military.tech            == 17,
+                            medical.tech             == 25,
+                            business.tech            == 2456,
+                            residential.tech         == 2700,
+                            agricultural.tech        == 217,
+                            warfare.tech             == 7,
+                            military.strategy.tech   == 6,
+                            weapons.tech             == 6,
+                            industrial.tech          == 5,
+                            spy.tech                 == 4,
+                            sdi.tech                 == 3,
+                            spies.forces             == 305,
+                            troops.forces            == 2144,
+                            jets.forces              == 1666,
+                            turrets.forces           == 1895,
+                            tanks.forces             == 1126,
+                            nuclear.missiles.forces  == 0,
+                            chemical.missiles.forces == 0,
+                            cruise.missiles.forces   == 0
+                           
+                           )
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    stop("Unit Test Failed!  Test.Calc.Change.Military")
+    return(FALSE)
+  }
+}
 
-system.time( replicate(1000000, function(x) { 
-Test.Inialize.State()
+
+# Test.Inialize.State()
 Test.Calc.Buildings()
 Test.Calc.Empty.Land()
 Test.Calc.Tech.Total()
@@ -600,5 +677,4 @@ Test.Calc.Buildings.Per.Turn()
 Test.Calc.Tech.Per.Turn()
 Test.Calc.Land.Upkeep()
 Test.Calc.Military.Upkeep()
-}
-) )
+Test.Calc.Change.Government()

@@ -57,7 +57,7 @@ Test.Inialize.State <- function()
   }
 }
 
-Test.calc.Buildings <- function()
+Test.Calc.Buildings <- function()
 {
   state <- Initialize.State()
   state <- state %>% mutate(
@@ -85,9 +85,66 @@ Test.calc.Buildings <- function()
     print("Failed Calc.Buildings")
     return(FALSE)
   }
+}
+
+Test.Calc.Empty.Land <- function()
+{
+  state <- Initialize.State()
+  state <- state %>% mutate(
+    enterprise.zones = 23,
+    residences.zones = 9,
+    industrial.zones = 43,
+    military.zones = 27,
+    research.zones = 62,
+    farms.zones = 11,
+    oil.zones = 21, 
+    land = 1000
+  )
   
+  state <- Calc.Empty.Land(state)
   
+  test <- state %>% filter(empty.land == 804)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    print("Failed Calc.Empty.Land")
+    return(FALSE)
+  }
+}
+
+Test.Calc.Tech.Total <- function(state)
+{
+  
+  state <- Initialize.State()
+  
+  state <- state %>% mutate(military.tech = 222,
+                              medical.tech = 243,
+                              business.tech = 1023,
+                              residential.tech = 29,
+                              agricultural.tech = 56,
+                              warfare.tech = 2023,
+                              military.strategy.tech = 2123400,
+                              weapons.tech = 20012,
+                              industrial.tech = 4560,
+                              spy.tech = 75440,
+                              sdi.tech = 1111
+                            )
+  state <- Calc.Tech.Total(state)
+  
+  test <- state %>% filter(tech.total == (222 + 243 + 1023+ 29 + 56 + 2023 + 2123400 + 20012 + 4560 + 75440 + 1111))
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    print("Failed Calc.Tech.Total")
+    return(FALSE)
+  }
 }
 
 Test.Inialize.State()
-Test.calc.Buildings()
+Test.Calc.Buildings()
+Test.Calc.Empty.Land()
+Test.Calc.Tech.Total()

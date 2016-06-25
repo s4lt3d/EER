@@ -75,6 +75,7 @@ Calc.Buildings <- function(state)
 
 Calc.Empty.Land <- function(state)
 {
+  state <- Calc.Buildings(state)
   state <- state %>% mutate(empty.land = land - buildings)
   return(state)
 }

@@ -4,46 +4,18 @@ library(dplyr)
 
 Initialize.State <- function(id=0)
 {
-  state.Names <- c("id", 
-                   "money", 
-                   "tax.rate",
-                   "government",
-                   "food",
-                   "oil",
-                   "population",
-                   "turns.left",
-                   "turns.taken",
-                   "turns.stored",
-                   "enterprise.zones",
-                   "residences.zones",
-                   "industrial.zones",
-                   "military.zones",
-                   "research.zones",
-                   "farms.zones",
-                   "oil.zones",
-                   "construction.zones",
-                   "military.tech",
-                   "medical.tech",
-                   "business.tech",
-                   "residential.tech",
-                   "agricultural.tech",
-                   "warfare.tech",
-                   "military.strategy.tech",
-                   "weapons.tech",
-                   "industrial.tech",
-                   "spy.tech",
-                   "sdi.tech",
-                   "spies.forces",
-                   "troops.forces",
-                   "jets.forces",
-                   "turrets.forces",
-                   "tanks.forces",
-                   "nuclear.missiles.forces",
-                   "chemical.missiles.forces",
-                   "cruise.missiles.forces",
-                   "at.war",
-                   "gdi.member"
-                   )
+  state.Names <- c("id", "money","tax.rate", "government", "food", "oil", 
+                   "population", "turns.left", "turns.taken", "turns.stored", 
+                   "enterprise.zones", "residences.zones", "industrial.zones", 
+                   "military.zones", "research.zones", "farms.zones", 
+                   "oil.zones", "construction.zones", "military.tech", 
+                   "medical.tech", "business.tech", "residential.tech", 
+                   "agricultural.tech", "warfare.tech", 
+                   "military.strategy.tech", "weapons.tech", "industrial.tech",
+                   "spy.tech", "sdi.tech", "spies.forces", "troops.forces", 
+                   "jets.forces", "turrets.forces", "tanks.forces", 
+                   "nuclear.missiles.forces", "chemical.missiles.forces", 
+                   "cruise.missiles.forces", "at.war", "gdi.member")
   
   state <- as.data.frame(t(as.data.frame(rep(0, length(state.Names)))))
   colnames(state) <- state.Names
@@ -52,7 +24,7 @@ Initialize.State <- function(id=0)
   state$money <- 25000
   state$at.war <- F
   state$gdi.member <- F
-  state$tax.rate <- 35
+  state$tax.rate <- 0.35
   state$troops.forces <- 100
   state$id <- id
   state$food <- 100
@@ -63,6 +35,7 @@ Initialize.State <- function(id=0)
 
 Calc.Buildings <- function(state)
 {
+  
   state <- state %>% mutate(buildings = enterprise.zones +
                             residences.zones +
                             industrial.zones +
@@ -109,6 +82,7 @@ Calc.Missiles.Total <- function(state)
 
 Calc.Networth <- function(state)
 {
+
   state <- state %>% mutate(networth = as.integer(
     (troops.forces * 0.5) + 
       (jets.forces * 0.6) + 
@@ -226,49 +200,73 @@ Init.Gov.Bonus <- function(state)
 
 Calc.PCI <- function(state)
 {
-  state <- state %>% mutate(pci = 22.5 * (1 - tax.rate) * 
-                            (1 + ((networth/land)/90000)) * 
+  state <- state %>% mutate(pci = round(22.5 * (1 - tax.rate) * 
+                            (1 + ((networth/land)/18000)) * 
                             (1 + (2 * (enterprise.zones/land))) * 
-                            business.tech * gov.pci.bonus  
+                            business.tech * gov.pci.bonus, 2)  
   )
   return(state)
 }
 
 Calc.Revenue <- function(state)
 {
-  state <- mutate(revenue = pci * population * tax.rate)
+  state <- state %>% mutate(revenue = as.integer(pci * population * tax.rate))
   return(state)
 }
 
 Calc.Buildings.Per.Turn <- function(state)
 {
-  state <- state %>% mutate(buildings.per.turn = as.integer((construction.sites/4) + 5) * 
-                              gov.construction.speed.bonus)
+  state <- state %>% mutate(buildings.per.turn = round(((construction.sites/4) + 5) * 
+                              gov.construction.speed.bonus))
   
   return(state)
 }
 
 Calc.Tech.Per.Turn <- function(state)
 {
-  state <- mutate(tech.per.turn = round(0.17 * research.zones * 
-                                          (1 + research.zones / land)) + 3)
+  state <- state %>% mutate(tech.per.turn = as.integer(round(0.17 * research.zones * 
+                                          (1 + research.zones / land)) + 3))
   return(state)
 }
 
 Calc.Land.Upkeep <- function(state)
 {
-  state <- mutate(land.upkeep = ifelse (land < 1500, 
-                                       (land ^ 2) * 7 / 1500 + land * 3, 
+  state <- state %>% mutate(land.upkeep = ifelse (land < 1500, 
+                                       as.integer((land ^ 2) * 7 / 1500 + land * 3), 
                                        land * 10))
   return(state)
 }
 
+# different than wiki
 Calc.Military.Upkeep <- function(state)
 {
-  state <- state %>% mutate(military.upkeep = ((troops.forces * .11) + (jets.forces * .14) + (turrets.forces * .18) + (tanks.forces * .57) + spies.forces) * military.tech * (1 + networth/40000000) * gov.military.upkeep.costs.bonus * 
-                              min(0.61, 1 - 1.3 * (military.zones / land)))  
+  
+  state <- state %>% mutate(milcost = 
+                   ifelse(military.zones / land < 0.295, 
+                          1-1.3*round(military.zones/land, 2), 0.61))
+
+  state <- state %>% mutate(military.upkeep = 
+                              round(
+                                round((troops.forces * .11) + 
+         (jets.forces * .14) + 
+         (turrets.forces * .18) + 
+         (tanks.forces * .57) + 
+         spies.forces * 1) * 
+       military.tech * (1 + networth / 200000000) * 
+       gov.military.upkeep.costs.bonus * 
+        milcost
+      ))  
+  
   return(state)
 }
+
+#milconst = 
+#if (round($this->country['b_mb']/max(1, $this->country['land']), 2) ) < 0.295
+#  1-1.3*round($this->country['b_mb']/max(1, $this->country['land']), 2) : 
+#  0.61);
+
+
+
 
 
 test.state <- Initialize.State()
@@ -286,8 +284,7 @@ test.state <- Calc.Food.Consumption(test.state)
 test.state <- Calc.Food.Decay(test.state)
 #test.state <- Calc.Food(test.state)
 
-test.state$networth
-test.state$construction.cost
+
 test.state$food
 test.state$food.produced
 test.state$food.consumption

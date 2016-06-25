@@ -12,7 +12,7 @@ Test.Inialize.State <- function()
     money == 25000,
     at.war == F,
     gdi.member == F,
-    tax.rate == 35,
+    tax.rate == 0.35,
     troops.forces == 100,
     food == 100,
     government == "Monarchy",
@@ -115,7 +115,7 @@ Test.Calc.Empty.Land <- function()
   }
 }
 
-Test.Calc.Tech.Total <- function(state)
+Test.Calc.Tech.Total <- function()
 {
   
   state <- Initialize.State()
@@ -167,33 +167,38 @@ Test.Calc.Missiles.Total <- function()
   }
 }
 
-Test.Calc.Networth <- function(state)
+Test.Calc.Networth <- function()
 {
   state <- Initialize.State()
   state <- state %>% mutate(
-    troops.forces = 1876,
-      jets.forces = 1320,
-      turrets.forces = 1586,
+    troops.forces = 1972,
+      jets.forces = 1416,
+      turrets.forces = 1682,
       tanks.forces = 1310,
-      spies.forces = 46,
-      tech.total = 442,
-      land = 8277,
-      buildings = (8277 - 4029),
-      money = 20893499,
-      food = 7329195,
+      spies.forces = 94,
+      tech.total = 454,
+      land = 8764,
+      buildings = (8764 - 4363),
+      money = 18234169,
+      food = 8548163,
       missles.total = 2,
-      population = 101738,
-      oil = 4794
+      population = 107483,
+      oil = 9690
   )
   
   state <- Calc.Networth(state)
   
-  test <- state %>% filter(networth == 557753)
+  
+  test <- state %>% filter(networth == 587350)
   
   if(tally(test) == 1) 
   {
     return(TRUE)
   } else {
+    print("Got")
+    print(state$networth)
+    print("Expected")
+    print("587350")
     stop("Unit Test Failed!  Test.Calc.Networth")
     return(FALSE)
   }
@@ -220,7 +225,7 @@ Test.Calc.Construction.Cost <- function()
 }
 
 
-Test.Calc.Oil.Consumption <- function(state)
+Test.Calc.Oil.Consumption <- function()
 {
   
   state <- Initialize.State()
@@ -242,7 +247,7 @@ Test.Calc.Oil.Consumption <- function(state)
   }
 }
 
-Test.Calc.Destruction.Cost <- function(state)
+Test.Calc.Destruction.Cost <- function()
 {
   state <- Initialize.State()
   
@@ -262,7 +267,7 @@ Test.Calc.Destruction.Cost <- function(state)
 }
 
 
-Test.Calc.Food.Consumption <- function(state)
+Test.Calc.Food.Consumption <- function()
 {
   state <- Initialize.State()
   
@@ -298,7 +303,7 @@ Test.Calc.Food.Consumption <- function(state)
   }
 }
 
-Test.Calc.Food.Produced <- function(state)
+Test.Calc.Food.Produced <- function()
 {
   state <- Initialize.State()
   state <- state %>% mutate( population = 107417,
@@ -334,7 +339,7 @@ Test.Calc.Food.Produced <- function(state)
   }
 }
 
-Test.Calc.Food.Decay <- function(state)
+Test.Calc.Food.Decay <- function()
 {
   state <- Initialize.State()
 
@@ -408,6 +413,174 @@ Test.Calc.Food <- function()
   }
 }
 
+
+Test.Calc.PCI <- function()
+{
+  state <- Initialize.State()  
+  
+  state <- state %>% mutate(population = 107483,
+                            spies.forces = 94,
+                            troops.forces = 1972,
+                            jets.forces = 1416,
+                            turrets.forces = 1682,
+                            tanks.forces = 1310,
+                            food = 8548163,
+                            enterprise.zones = 5,
+                            residences.zones = 94,
+                            industrial.zones = 5,
+                            military.zones = 5,
+                            research.zones = 5,
+                            farms.zones = 4110,
+                            oil.zones = 51,
+                            construction.zones = 126,
+                            agricultural.tech = 1.0036,
+                            land = 8764,
+                            money = 18234169,
+                            gov.food.production.bonus = 1, 
+                            gov.pci.bonus = 1,
+                            tax.rate = 0.35, 
+                            networth = 587350,
+                            business.tech = 1
+                            )
+  
+  
+  state <- Calc.PCI(state)
+
+  test <- state %>% filter(pci == 14.70)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    stop("Unit Test Failed!  Test.Calc.PCI")
+    return(FALSE)
+  }
+}
+
+Test.Calc.Revenue <- function()
+{
+  state <- Initialize.State()  
+  state <- state %>% mutate(pci = 14.70,
+                            population = 107483,
+                            tax.rate = 0.35
+                            )
+  
+  state <- Calc.Revenue(state)
+  
+  test <- state %>% filter(revenue == 553000)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    print("Expected")
+    print(55300)
+    print("Returned")
+    print(test$revenue)
+    stop("Unit Test Failed!  Test.Calc.Revenue")
+    return(FALSE)
+  }
+}
+
+Test.Calc.Buildings.Per.Turn <- function()
+{
+  state <- Initialize.State()  
+  state <- state %>% mutate(construction.sites = 126,
+                            gov.construction.speed.bonus = 1.4)
+  
+  state <- Calc.Buildings.Per.Turn(state)
+  
+  test <- state %>% filter(buildings.per.turn == 51)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    print("Expected")
+    print(51)
+    print("Returned")
+    print(state$buildings.per.turn)
+    stop("Unit Test Failed!  Test.Calc.Buildings.Per.Turn")
+    return(FALSE)
+  }
+}
+
+Test.Calc.Tech.Per.Turn <- function()
+{
+  state <- Initialize.State()  
+  state <- state %>% mutate(research.zones = 5,
+                  land = 8764)
+  state <- Calc.Tech.Per.Turn(state)
+  
+  test <- state %>% filter(tech.per.turn == 4)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    print("Expected")
+    print(4)
+    print("Returned")
+    print(test$tech.per.turn)
+    stop("Unit Test Failed!  Test.Calc.Tech.Per.Turn")
+    return(FALSE)
+  }
+}
+
+Test.Calc.Land.Upkeep <- function()
+{
+  state <- Initialize.State()  
+  state <- state %>% mutate(land = 120)
+  state <- Calc.Land.Upkeep(state)
+  
+  test <- state %>% filter(land.upkeep == 427)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    print("Expected")
+    print(427)
+    print("Returned")
+    print(state$land.upkeep)
+    stop("Unit Test Failed!  Test.Calc.Land.Upkeep")
+    return(FALSE)
+  }
+}
+
+Test.Calc.Military.Upkeep <- function()
+{
+  state <- Initialize.State()  
+  state <- state %>% mutate(troops.forces                   = 1972,
+                            jets.forces                     = 1416, 
+                            turrets.forces                  = 1682,
+                            tanks.forces                    = 1310,
+                            spies.forces                    = 94,
+                            military.tech                   = 1,
+                            networth                        = 587350,
+                            gov.military.upkeep.costs.bonus = 1,
+                            military.zones                  = 5,
+                            land                            = 8764
+                            )  
+  state <- Calc.Military.Upkeep(state)
+  
+  test <- state %>% filter(military.upkeep == 1564)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    print("Expected")
+    print(1564)
+    print("Returned")
+    print(state$military.upkeep)
+    stop("Unit Test Failed!  Test.Calc.Military.Upkeep")
+    return(FALSE)
+  }
+}
+
+
+
 Test.Inialize.State()
 Test.Calc.Buildings()
 Test.Calc.Empty.Land()
@@ -421,3 +594,9 @@ Test.Calc.Food.Produced()
 Test.Calc.Food.Consumption()
 Test.Calc.Food.Decay()
 Test.Calc.Food()
+Test.Calc.PCI()
+Test.Calc.Revenue()
+Test.Calc.Buildings.Per.Turn()
+Test.Calc.Tech.Per.Turn()
+Test.Calc.Land.Upkeep()
+Test.Calc.Military.Upkeep()

@@ -18,8 +18,6 @@ fixjson <- function(json)
   if(grepl(':', x=json) == FALSE)
   {
     json <- sub("(\\w*)", "\"ERROR\":\"\\1\"", x=json)
-  } else {
-    json <- sub("(\\w*):", "\"\\1\":", x=json) #Adds quotes around first word
   }
   
   json <- paste("{", json, "}", sep="") # Adds {} around json 
@@ -40,10 +38,11 @@ doPOST <- function(params)
     print('Timeout')
     return(json)
   }
+  
   json <- content(req, "text", encoding = "UTF-8")
   
   #print(json)
-  json <- fixjson(json)
+  #json <- fixjson(json)
   return(json)
 }
 

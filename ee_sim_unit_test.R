@@ -91,19 +91,20 @@ Test.Calc.Empty.Land <- function()
 {
   state <- Initialize.State()
   state <- state %>% mutate(
-    enterprise.zones = 23,
-    residences.zones = 9,
-    industrial.zones = 43,
-    military.zones = 27,
-    research.zones = 62,
-    farms.zones = 11,
-    oil.zones = 21, 
-    land = 1000
+    enterprise.zones = 5,
+    residences.zones = 94,
+    industrial.zones = 5,
+    military.zones = 5,
+    research.zones = 5,
+    farms.zones = 4110,
+    oil.zones = 51, 
+    construction.zones = 126,
+    land = 8764
   )
   
   state <- Calc.Empty.Land(state)
   
-  test <- state %>% filter(empty.land == 804)
+  test <- state %>% filter(empty.land == 4363)
   
   if(tally(test) == 1) 
   {
@@ -186,7 +187,6 @@ Test.Calc.Networth <- function(state)
   )
   
   state <- Calc.Networth(state)
-  print(state$networth)
   
   test <- state %>% filter(networth == 557753)
   
@@ -202,9 +202,222 @@ Test.Calc.Networth <- function(state)
 }
 
 
+Test.Calc.Construction.Cost <- function()
+{
+  state <- Initialize.State()
+  state <- state %>% mutate(land = 8383)
+  state <- Calc.Construction.Cost(state)
+  
+  test <- state %>% filter(construction.cost ==  26649)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    stop("Unit Test Failed!  Test.Calc.Construction.Cost")
+    return(FALSE)
+  }
+}
+
+
+Test.Calc.Oil.Consumption <- function(state)
+{
+  
+  state <- Initialize.State()
+  state <- state %>% mutate( troops.forces  = 3000, 
+                                jets.forces  = 500, 
+                                tanks.forces = 200  
+  )
+  
+  state <- Calc.Oil.Consumption(state)
+  
+  test <- state %>% filter(oil.consumption ==  148)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    stop("Unit Test Failed!  Test.Calc.Construction.Cost")
+    return(FALSE)
+  }
+}
+
+Test.Calc.Destruction.Cost <- function(state)
+{
+  state <- Initialize.State()
+  
+  state <- state %>% mutate(land = 9333)
+  
+  state <- Calc.Destruction.Cost(state)
+  
+  test <- state %>% filter(destruction.cost == 5899)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    stop("Unit Test Failed!  Test.Calc.Destruction.Cost")
+    return(FALSE)
+  }
+}
+
+
+Test.Calc.Food.Consumption <- function(state)
+{
+  state <- Initialize.State()
+  
+  state <- state %>% mutate( population = 107417,
+                             spies.forces = 93,
+                             troops.forces = 1970,
+                             jets.forces = 1414,
+                             turrets.forces = 1680,
+                             tanks.forces = 1310,
+                             food = 8536342,
+                             enterprise.zones = 5,
+                             residences.zones = 94,
+                             industrial.zones = 5,
+                             military.zones = 5,
+                             research.zones = 5,
+                             farms.zones = 4110,
+                             oil.zones = 51,
+                             construction.zones = 126,
+                             agricultural.tech = 1.0036,
+                             land = 8764,
+                             gov.food.production.bonus = 1
+  )
+  
+  state <- Calc.Food.Consumption(state)
+  test <- state %>% filter(food.consumption == 3232)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    stop("Unit Test Failed!  Test.Calc.Food.Consumption")
+    return(FALSE)
+  }
+}
+
+Test.Calc.Food.Produced <- function(state)
+{
+  state <- Initialize.State()
+  state <- state %>% mutate( population = 107417,
+                             spies.forces = 93,
+                             troops.forces = 1970,
+                             jets.forces = 1414,
+                             turrets.forces = 1680,
+                             tanks.forces = 1310,
+                             food = 8536342,
+                             enterprise.zones = 5,
+                             residences.zones = 94,
+                             industrial.zones = 5,
+                             military.zones = 5,
+                             research.zones = 5,
+                             farms.zones = 4110,
+                             oil.zones = 51,
+                             construction.zones = 126,
+                             agricultural.tech = 1.0036,
+                             land = 8764,
+                             gov.food.production.bonus = 1
+  )
+  
+  state <- Calc.Food.Produced(state)
+
+  test <- state %>% filter(food.produced == 23612)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    stop("Unit Test Failed!  Test.Calc.Food.Produced")
+    return(FALSE)
+  }
+}
+
+Test.Calc.Food.Decay <- function(state)
+{
+  state <- Initialize.State()
+
+  state <- state %>% mutate( population = 107417,
+                             spies.forces = 93,
+                             troops.forces = 1970,
+                             jets.forces = 1414,
+                             turrets.forces = 1680,
+                             tanks.forces = 1310,
+                             food = 8536342,
+                             enterprise.zones = 5,
+                             residences.zones = 94,
+                             industrial.zones = 5,
+                             military.zones = 5,
+                             research.zones = 5,
+                             farms.zones = 4110,
+                             oil.zones = 51,
+                             construction.zones = 126,
+                             agricultural.tech = 1.0036,
+                             land = 8764,
+                             gov.food.production.bonus = 1
+  )
+  
+  state <- Calc.Food.Decay(state)
+  
+  test <- state %>% filter(food.decay == 8556)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    stop("Unit Test Failed!  Test.Calc.Food.Decay")
+    return(FALSE)
+  }
+}
+
+Test.Calc.Food <- function()
+{
+  state <- Initialize.State()
+  
+  state <- state %>% mutate( population = 107417,
+                             spies.forces = 93,
+                             troops.forces = 1970,
+                             jets.forces = 1414,
+                             turrets.forces = 1680,
+                             tanks.forces = 1310,
+                             food = 8536342,
+                             enterprise.zones = 5,
+                             residences.zones = 94,
+                             industrial.zones = 5,
+                             military.zones = 5,
+                             research.zones = 5,
+                             farms.zones = 4110,
+                             oil.zones = 51,
+                             construction.zones = 126,
+                             agricultural.tech = 1.0036,
+                             land = 8764,
+                             gov.food.production.bonus = 1
+  )
+  
+  state <- Calc.Food(state)
+  
+  test <- state %>% filter(food == 8548166)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    stop("Unit Test Failed!  Test.Calc.Food")
+    return(FALSE)
+  }
+}
+
 Test.Inialize.State()
 Test.Calc.Buildings()
 Test.Calc.Empty.Land()
 Test.Calc.Tech.Total()
 Test.Calc.Missiles.Total()
 Test.Calc.Networth()
+Test.Calc.Construction.Cost()
+Test.Calc.Oil.Consumption()
+Test.Calc.Destruction.Cost()
+Test.Calc.Food.Produced()
+Test.Calc.Food.Consumption()
+Test.Calc.Food.Decay()
+Test.Calc.Food()

@@ -69,7 +69,8 @@ Calc.Buildings <- function(state)
                             military.zones +
                             research.zones +
                             farms.zones +
-                            oil.zones)
+                            oil.zones + 
+                            construction.zones)
   return(state)
 }
 
@@ -142,14 +143,14 @@ Calc.Oil.Consumption <- function(state)
 
 Calc.Destruction.Cost <- function(state)
 {
-  state <- state %>% mutate(destruction.cost = 0.2 * (3 * land + 1500))
+  state <- state %>% mutate(destruction.cost = as.integer(0.2 * (3 * land + 1500)))
   return(state)
 }
 
 Calc.Food.Consumption <- function(state)
 {
   state <- state %>% mutate(food.consumption = 
-                            as.integer(
+                            round(
                               (population * 0.03) + 
                               (spies.forces * 0.005) + 
                               ((troops.forces + jets.forces + turrets.forces) * 0.001) + 
@@ -160,12 +161,15 @@ Calc.Food.Consumption <- function(state)
   return(state)
 }
 
+#Different formula than publish version. Matches game through experiment
 Calc.Food.Produced <- function(state)
 {
+  state <- Calc.Empty.Land(state)
+  
   state <- state %>% mutate(food.produced = 
                               as.integer(
-                                (farms.zones * 5.3) + 
-                                (empty.land * 0.4) * gov.food.production.bonus * 
+                                ((farms.zones * 5.3) + 
+                                (empty.land * 0.4)) * gov.food.production.bonus * 
                               agricultural.tech
                               )
                            )
@@ -174,6 +178,8 @@ Calc.Food.Produced <- function(state)
 
 Calc.Food.Decay <- function(state)
 {
+  state <- Calc.Food.Consumption(state)
+  state <- Calc.Food.Produced(state)
   state <- state %>% mutate(food.decay = 
                    as.integer((food - food.consumption + food.produced) / 1000)
                   )
@@ -182,6 +188,9 @@ Calc.Food.Decay <- function(state)
 
 Calc.Food <- function(state)
 {
+  state <- Calc.Food.Consumption(state)
+  state <- Calc.Food.Produced(state)
+  state <- Calc.Food.Decay(state)
   state <- state %>% mutate(food = food + food.produced - (food.consumption + food.decay) )
   return(state)
 }

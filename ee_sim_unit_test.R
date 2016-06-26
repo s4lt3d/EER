@@ -5,7 +5,6 @@ source("ee_sim.R")
 
 Test.Inialize.State <- function()
 {
-  y <<- y + 1
   state <- Initialize.State()
   
   test <- state %>% filter(
@@ -612,7 +611,8 @@ Test.Calc.Change.Government <- function()
                             tanks.forces             = 1310,
                             nuclear.missiles.forces  = 1,
                             chemical.missiles.forces = 1,
-                            cruise.missiles.forces   = 1)
+                            cruise.missiles.forces   = 1, 
+                            land                     = 9997)
   
    state <- Calc.Change.Government(state)
   
@@ -658,6 +658,70 @@ Test.Calc.Change.Government <- function()
 }
 
 
+# Very unverified
+Test.Calc.Tech.Percentage <- function(state)
+{
+  state <- Initialize.State()  
+  
+  state <- state %>% mutate(military.tech            = 11000,
+                            medical.tech             = 6000,
+                            business.tech            = 6000,
+                            residential.tech         = 6000,
+                            agricultural.tech        = 6000,
+                            warfare.tech             = 6000,
+                            military.strategy.tech   = 6000,
+                            weapons.tech             = 6000,
+                            industrial.tech          = 6000,
+                            spy.tech                 = 6000,
+                            sdi.tech                 = 6000,
+                            land                     = 10017, 
+                            government               = "C")
+  
+  state <- Calc.Tech.Percentage(state)
+  
+  test <- state %>% filter(business.tech.per == 1.08009,
+                           residential.tech.per == 1.08009, 
+                           agricultural.tech.per == 1.13014, 
+                           sdi.tech.per == 0.099098,
+                           medical.tech.per == 0.953504, 
+                           military.tech.per == 0.966271,
+                           warfare.tech.per == 0.00680529,
+                           military.strategy.tech.per == 1.04004,
+                           weapons.tech.per == 1.05006,
+                           industrial.tech.per == 1.06007,
+                           spy.tech.per == 1.05006 )
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    stop("Unit Test Failed!  Test.Calc.Change.Military")
+    return(FALSE)
+  }
+}
+
+Test.Calc.Total.Expense <- function()
+{
+  
+  state <- Initialize.State()
+  
+  state <- state %>% mutate(military.upkeep = 1763, 
+                            land.upkeep = 99970
+                           )
+  
+  state <- Calc.Total.Expense(state)
+  
+  test <- state %>% filter(total.expense == 101733)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    stop("Unit Test Failed!  Test.Calc.Total.Expense")
+    return(FALSE)
+  }
+}
+
 # Test.Inialize.State()
 Test.Calc.Buildings()
 Test.Calc.Empty.Land()
@@ -678,3 +742,5 @@ Test.Calc.Tech.Per.Turn()
 Test.Calc.Land.Upkeep()
 Test.Calc.Military.Upkeep()
 Test.Calc.Change.Government()
+Test.Calc.Tech.Percentage()
+Test.Calc.Total.Expense()

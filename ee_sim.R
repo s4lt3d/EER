@@ -6,12 +6,21 @@ library(dplyr)
 # Rebuilding Cost ?
 # Alliance Upkeep
 # GDI Penalty
-# Total Expense
-# Technology Percentages
 # SPAL
 # Standard Strike
 # Planned Strike
-# Government Changes
+
+# Helper function
+# keep a number between two numbers elementwise
+pconstrain <- function( x, r1, r2 )
+{
+  if(length(x) != length(r1) | length(x) != length(r2)){ stop ('Must be the same length') }
+  
+  lower.bounds <- pmin(r1, r2)
+  upper.bounds <- pmax(r1, r2)
+  
+  return(pmin(pmax(x, lower.bounds), upper.bounds))
+}
 
 Initialize.State <- function(id=0)
 {
@@ -306,6 +315,97 @@ Calc.Change.Government <- function(state)
   return(state)
 }
 
+
+# Military	        8000	  97.5%
+# Medical	          3000	  97.6%
+# Business        	3000	 104.1%
+# Residential	      3000	 104.1%
+# Agricultural	    3000	 106.7%
+# Warfare	          3000	 0.447%
+# Military Strategy	3000	 102.1%
+# Weapons	          3000	 102.6%
+# Industrial	      3000	 103.1%
+# Spy	              3000	 102.6%
+# SDI	              3000 	  5.57%
+# land              9997  
+
+
+# Military	        11,000	96.6%
+# Medical	          6000	  95.4%
+# Business	        6000	 108.0%
+# Residential	      6000	 108.0%
+# Agricultural	    6000	 113.0%
+# Warfare	          6000	 0.681%
+# Military Strategy	6000	 104.0%
+# Weapons	          6000	 105.0%
+# Industrial	      6000	 106.0%
+# Spy	              6000	 105.0%
+# SDI	              6000	 9.91%
+
+
+#        $c = ($country ? $country : $this->country);
+#$c1 = 192;
+#$c2 = 6.795;
+#$gvtmax = ($c['govt'] == 'H' ? ($this->govt_version > 0 ? 0.65 : 0.5) : ($c['govt'] == 'D' && $this->govt_version > 0 ? 1.1 : 1.0));
+#$g_t_eff = ($c['govt'] == 'C' ? 1.2 : 1);
+#return ($baseTech+($maxTech-$baseTech)*$gvtmax*(1-exp(-1*$g_t_eff*$c[$tech_handle]/($c1+$c2*$c['land']))))/100;     ///----updated to return actual percentage
+
+Calc.Tech.Percentage <- function(state)
+{
+  techstate <- state %>% select(business.tech, residential.tech, agricultural.tech, sdi.tech,
+                                medical.tech, military.tech, warfare.tech, military.strategy.tech, 
+                                weapons.tech, industrial.tech, spy.tech )
+  gov.eff  <- rep(1, 11)
+  gov.tech <- rep(1, 11)
+                # x      x      x              x        x         x       x        x      x      x  
+                # bus    res    agri   sdi     med       mil       war     mil.str  weap   indy   spy
+  base <-       c(1,     1,     1,     0.01,   1,        1,        0.002,  1,       1,     1,     1)
+  max.tech <-   c(1.8,   1.8,   2.3,   0.9,    0.66666,  0.83333,  0.05,   1.4,     1.5,   1.6,   1.5)
+  C1 <-         c(192,   192,   192,   192,    1650,     780,      192,    192,     192,   192,   192)
+  C2 <-         c(6.795, 6.795, 6.795, 6.795,  4.62,     5.75,     6.795,  6.795,   6.795, 6.795, 6.795)
+
+  if (state$government == "C") {
+    gov.eff  <- rep(1.2, 11)
+  }
+  if (state$government == "D") {
+    gov.tech <- rep(1.1, 11)
+    max.tech <- c(1.88,  1.88,  0.243, 0.989,  0.633333, 0.816666, 0.055,  1.44,    1.55,  1.66,  1.55)
+  }
+  if (state$government == "H") {
+    gov.tech <- rep(0.65, 11)
+    max.tech <- c(1.52,  1.52,  1.845, 0.5885, 0.783333, 0.8916,   0.0332, 1.26,    1.325, 1.39,  1.325)
+  }
+  
+  land <- rep(state$land, 11)
+  ones <- rep(1, 11)
+  
+  m1 <- as.matrix(cbind(C1, C2))
+  m2 <- as.matrix(rbind(ones, land))
+
+  tech.per <- signif(base + (max.tech - base ) * gov.tech * (1 - exp(-1 * gov.eff * techstate / (m1 %*% m2)[,1])),6)
+  tech.per <- pconstrain(tech.per, max.tech, base)
+
+  state <- state %>% mutate(business.tech.per = tech.per$business.tech,
+                            residential.tech.per = tech.per$residential.tech,
+                            agricultural.tech.per = tech.per$agricultural.tech,
+                            sdi.tech.per = tech.per$sdi.tech,
+                            medical.tech.per = tech.per$medical.tech,
+                            military.tech.per = tech.per$military.tech,
+                            warfare.tech.per = tech.per$warfare.tech,
+                            military.strategy.tech.per = tech.per$military.strategy.tech,
+                            weapons.tech.per = tech.per$weapons.tech,
+                            industrial.tech.per = tech.per$industrial.tech,
+                            spy.tech.per = tech.per$spy.tech
+                           )
+  return(state)
+}
+
+Calc.Total.Expense <- function(state)
+{
+  state <- state %>% mutate(total.expense = military.upkeep + land.upkeep)
+  
+  return(state)
+}
 
 
 

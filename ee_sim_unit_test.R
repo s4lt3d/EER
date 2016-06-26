@@ -172,25 +172,45 @@ Test.Calc.Networth <- function()
 {
   state <- Initialize.State()
   state <- state %>% mutate(
-    troops.forces = 1972,
-      jets.forces = 1416,
-      turrets.forces = 1682,
-      tanks.forces = 1310,
-      spies.forces = 94,
-      tech.total = 454,
-      land = 8764,
-      buildings = (8764 - 4363),
-      money = 18234169,
-      food = 8548163,
-      missles.total = 2,
-      population = 107483,
-      oil = 9690
+    food                     = 11711956,
+    money                    = 154913855,
+    enterprise.zones         = 4,
+    residences.zones         = 1842,
+    industrial.zones         = 4,
+    military.zones           = 4,
+    research.zones           = 1704,
+    farms.zones              = 3464,
+    oil.zones                = 43,
+    construction.zones       = 108,
+    military.tech            = 11000,
+    medical.tech             = 6000,
+    business.tech            = 6000,
+    residential.tech         = 6000,
+    agricultural.tech        = 6000,
+    warfare.tech             = 6000,
+    military.strategy.tech   = 6000,
+    weapons.tech             = 6000,
+    industrial.tech          = 6000,
+    spy.tech                 = 6000,
+    sdi.tech                 = 6000,
+    spies.forces             = 530,
+    troops.forces            = 2594,
+    jets.forces              = 2116,
+    turrets.forces           = 2345,
+    tanks.forces             = 1126,
+    nuclear.missiles.forces  = 0,
+    chemical.missiles.forces = 2,
+    cruise.missiles.forces   = 0, 
+    land                     = 10017,
+    population               = 118453,
+    networth                 = 895333, 
+    oil                      = 55924
   )
   
   state <- Calc.Networth(state)
   
   
-  test <- state %>% filter(networth == 587350)
+  test <- state %>% filter(networth == 895333)
   
   if(tally(test) == 1) 
   {
@@ -199,7 +219,7 @@ Test.Calc.Networth <- function()
     print("Got")
     print(state$networth)
     print("Expected")
-    print("587350")
+    print("895333")
     stop("Unit Test Failed!  Test.Calc.Networth")
     return(FALSE)
   }
@@ -582,6 +602,7 @@ Test.Calc.Military.Upkeep <- function()
 
 Test.Calc.Change.Government <- function()
 {
+
   state <- Initialize.State()  
   state <- state %>% mutate(food                     = 11907444,
                             money                    = 79851821,
@@ -613,7 +634,7 @@ Test.Calc.Change.Government <- function()
                             chemical.missiles.forces = 1,
                             cruise.missiles.forces   = 1, 
                             land                     = 9997)
-  
+   state <- Calc.Networth(state)
    state <- Calc.Change.Government(state)
   
    test <- state %>% filter(food                     == 10240401,

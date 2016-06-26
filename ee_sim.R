@@ -102,22 +102,24 @@ Calc.Missiles.Total <- function(state)
 
 Calc.Networth <- function(state)
 {
-
-  state <- state %>% mutate(networth = as.integer(
-    (troops.forces * 0.5) + 
-      (jets.forces * 0.6) + 
-      (turrets.forces * 0.6) + 
-      (tanks.forces * 2) + 
-      (spies.forces * 1) + 
+  state <- Calc.Tech.Total(state)
+  state <- Calc.Buildings(state)
+  state <- Calc.Missiles.Total(state)
+  state <- state %>% mutate(networth = 
+      round((troops.forces * 0.5) + 
+        (jets.forces * 0.6) + 
+        (turrets.forces * 0.6) + 
+        (tanks.forces * 2) + 
+        (spies.forces * 1)) + 
       (tech.total * 2) + 
       (land * 45) + 
       (buildings * 35) + 
-      (money / 20000) + 
-      (food/1000) + 
+      as.integer((money / 20000)) + 
+      as.integer((food/1000)) + 
       as.integer(missles.total * 2500) + 
-      as.integer(population/6) + 
+      as.integer(as.integer(population/6)) + 
       as.integer(oil/100))
-                            )
+                            
   return(state)
 }
 
@@ -282,35 +284,45 @@ Calc.Military.Upkeep <- function(state)
 
 Calc.Change.Government <- function(state)
 {
-  state <- state %>% mutate(food                     = as.integer(food * 0.86),
-                            money                    = as.integer(money * 0.86),
-                            enterprise.zones         = as.integer(enterprise.zones * 0.86),
-                            residences.zones         = as.integer(residences.zones * 0.86),
-                            industrial.zones         = as.integer(industrial.zones * 0.86),
-                            military.zones           = as.integer(military.zones * 0.86),
-                            research.zones           = as.integer(research.zones * 0.86),
-                            farms.zones              = as.integer(farms.zones * 0.86),
-                            oil.zones                = as.integer(oil.zones * 0.86),
-                            construction.zones       = as.integer(construction.zones * 0.86),
-                            military.tech            = as.integer(military.tech * 0.86),
-                            medical.tech             = as.integer(medical.tech * 0.86),
-                            business.tech            = as.integer(business.tech * 0.86),
-                            residential.tech         = as.integer(residential.tech * 0.86),
-                            agricultural.tech        = as.integer(agricultural.tech * 0.86),
-                            warfare.tech             = as.integer(warfare.tech * 0.86),
-                            military.strategy.tech   = as.integer(military.strategy.tech * 0.86),
-                            weapons.tech             = as.integer(weapons.tech * 0.86),
-                            industrial.tech          = as.integer(industrial.tech * 0.86),
-                            spy.tech                 = as.integer(spy.tech * 0.86),
-                            sdi.tech                 = as.integer(sdi.tech * 0.86),
-                            spies.forces             = as.integer(spies.forces * 0.86),
-                            troops.forces            = as.integer(troops.forces * 0.86),
-                            jets.forces              = as.integer(jets.forces * 0.86),
-                            turrets.forces           = as.integer(turrets.forces * 0.86),
-                            tanks.forces             = as.integer(tanks.forces * 0.86),
-                            nuclear.missiles.forces  = as.integer(nuclear.missiles.forces * 0.86),
-                            chemical.missiles.forces = as.integer(chemical.missiles.forces * 0.86),
-                            cruise.missiles.forces   = as.integer(cruise.missiles.forces * 0.86)
+  loss <- 1 - 0.14;
+
+  if(state$networth > 12000000 & state$networth < 30000000){
+    loss <- 1 - (0.14 + 0.25 * (state$networth - 12000000) / 18000000)
+  }
+  if(state$networth >= 30000000) {
+    loss <- 1 - 0.39
+  }
+  
+  
+  state <- state %>% mutate(food                     = as.integer(food * loss),
+                            money                    = as.integer(money * loss),
+                            enterprise.zones         = as.integer(enterprise.zones * loss),
+                            residences.zones         = as.integer(residences.zones * loss),
+                            industrial.zones         = as.integer(industrial.zones * loss),
+                            military.zones           = as.integer(military.zones * loss),
+                            research.zones           = as.integer(research.zones * loss),
+                            farms.zones              = as.integer(farms.zones * loss),
+                            oil.zones                = as.integer(oil.zones * loss),
+                            construction.zones       = as.integer(construction.zones * loss),
+                            military.tech            = as.integer(military.tech * loss),
+                            medical.tech             = as.integer(medical.tech * loss),
+                            business.tech            = as.integer(business.tech * loss),
+                            residential.tech         = as.integer(residential.tech * loss),
+                            agricultural.tech        = as.integer(agricultural.tech * loss),
+                            warfare.tech             = as.integer(warfare.tech * loss),
+                            military.strategy.tech   = as.integer(military.strategy.tech * loss),
+                            weapons.tech             = as.integer(weapons.tech * loss),
+                            industrial.tech          = as.integer(industrial.tech * loss),
+                            spy.tech                 = as.integer(spy.tech * loss),
+                            sdi.tech                 = as.integer(sdi.tech * loss),
+                            spies.forces             = as.integer(spies.forces * loss),
+                            troops.forces            = as.integer(troops.forces * loss),
+                            jets.forces              = as.integer(jets.forces * loss),
+                            turrets.forces           = as.integer(turrets.forces * loss),
+                            tanks.forces             = as.integer(tanks.forces * loss),
+                            nuclear.missiles.forces  = as.integer(nuclear.missiles.forces * loss),
+                            chemical.missiles.forces = as.integer(chemical.missiles.forces * loss),
+                            cruise.missiles.forces   = as.integer(cruise.missiles.forces * loss)
                           )
   return(state)
 }

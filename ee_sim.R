@@ -1,5 +1,6 @@
 library(dplyr)
 
+source('explore_rates.R')
 # This is a full sim of EE so that bots can train faster
 
 # TODO 
@@ -419,6 +420,18 @@ Calc.Total.Expense <- function(state)
   return(state)
 }
 
+Calc.Explore.Rate <- function(state)
+{
+  explore.rate <- max(select(filter(explore.rates, land > state$land, gov == "O"), rate))
+  
+  if(state$government == 'R'){
+    explore.rate <- max(select(filter(explore.rates, land > state$land, gov == "R"), rate))
+  }
+  
+  state <- state %>% mutate(explore.rate = explore.rate)
+  
+  return(state)
+}
 
 
 # test.state <- Initialize.State()

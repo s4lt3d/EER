@@ -743,6 +743,31 @@ Test.Calc.Total.Expense <- function()
   }
 }
 
+Test.Calc.Explore.Rate <- function()
+{
+  
+  state <- Initialize.State()
+  
+  state <- state %>% mutate(land = 10017
+  )
+  
+  state <- Calc.Explore.Rate(state)
+  
+  test <- state %>% filter(explore.rate == 11)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    print("Expected")
+    print(11)
+    print("Returned")
+    print(state$explore.rate)
+    stop("Unit Test Failed!  Test.Calc.Explore.Rate")
+    return(FALSE)
+  }
+}
+
 # Test.Inialize.State()
 Test.Calc.Buildings()
 Test.Calc.Empty.Land()
@@ -765,3 +790,4 @@ Test.Calc.Military.Upkeep()
 Test.Calc.Change.Government()
 Test.Calc.Tech.Percentage()
 Test.Calc.Total.Expense()
+Test.Calc.Explore.Rate()

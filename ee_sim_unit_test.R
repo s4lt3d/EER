@@ -505,7 +505,7 @@ Test.Calc.Revenue <- function()
 Test.Calc.Buildings.Per.Turn <- function()
 {
   state <- Initialize.State()  
-  state <- state %>% mutate(construction.sites = 126,
+  state <- state %>% mutate(construction.zones = 126,
                             gov.construction.speed.bonus = 1.4)
   
   state <- Calc.Buildings.Per.Turn(state)
@@ -747,8 +747,7 @@ Test.Calc.Explore.Rate <- function()
   
   state <- Initialize.State()
   
-  state <- state %>% mutate(land = 10017
-  )
+  state <- state %>% mutate(land = 10017)
   
   state <- Calc.Explore.Rate(state)
   

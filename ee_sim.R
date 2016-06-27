@@ -36,7 +36,7 @@ Initialize.State <- function(id=0)
                    "spy.tech", "sdi.tech", "spies.forces", "troops.forces", 
                    "jets.forces", "turrets.forces", "tanks.forces", 
                    "nuclear.missiles.forces", "chemical.missiles.forces", 
-                   "cruise.missiles.forces", "at.war", "gdi.member")
+                   "cruise.missiles.forces", "at.war", "gdi.member", "turns", "success")
   
   state <- as.data.frame(t(as.data.frame(rep(0, length(state.Names)))))
   colnames(state) <- state.Names
@@ -50,7 +50,38 @@ Initialize.State <- function(id=0)
   state$id <- id
   state$food <- 100
   state$government <- "M"
+  state$success <= TRUE
   state <- tbl_dt(state)
+  state <- Init.Gov.Bonus(state)
+  state <- Update.State(state)
+  
+  return(state)
+}
+
+Update.State <- function(state)
+{
+  state <- Calc.Networth(state)
+  state <- Calc.Buildings(state)
+  state <- Calc.Tech.Total(state)
+  state <- Calc.Empty.Land(state)
+  state <- Calc.Missiles.Total(state)
+  state <- Calc.Construction.Cost(state)
+  state <- Calc.Destruction.Cost(state)
+  state <- Calc.Oil.Consumption(state)
+  state <- Calc.Food.Consumption(state)
+  state <- Calc.Food.Produced(state)
+  state <- Calc.Food.Decay(state)
+  state <- Calc.PCI(state)
+  state <- Calc.Revenue(state)
+  state <- Calc.Buildings.Per.Turn(state)
+  state <- Calc.Tech.Per.Turn(state)
+  state <- Calc.Land.Upkeep(state) 
+  state <- Calc.Military.Upkeep(state)
+  state <- Calc.Tech.Percentage(state)
+  state <- Calc.Total.Expense(state)
+  state <- Calc.Explore.Rate(state)
+  state <- Calc.Max.Population(state)
+  state <- Calc.Population.Growth(state)
   return(state)
 }
 
@@ -239,7 +270,7 @@ Calc.Revenue <- function(state)
 
 Calc.Buildings.Per.Turn <- function(state)
 {
-  state <- state %>% mutate(buildings.per.turn = round(((construction.sites/4) + 5) * 
+  state <- state %>% mutate(buildings.per.turn = round(((construction.zones/4) + 5) * 
                               gov.construction.speed.bonus))
   
   return(state)
@@ -422,13 +453,13 @@ Calc.Total.Expense <- function(state)
 
 Calc.Explore.Rate <- function(state)
 {
-  explore.rate <- max(select(filter(explore.rates, land > state$land, gov == "O"), rate))
+  explorerate <- max(select(filter(explore.rates, land > state$land, gov == "O"), rate))
   
   if(state$government == 'R'){
-    explore.rate <- max(select(filter(explore.rates, land > state$land, gov == "R"), rate))
+    explorerate <- max(select(filter(explore.rates, land > state$land, gov == "R"), rate))
   }
   
-  state <- state %>% mutate(explore.rate = explore.rate)
+  state <- state %>% mutate(explore.rate = explorerate)
   
   return(state)
 }
@@ -475,6 +506,36 @@ Calc.Max.Population <- function(state)
   
   return(state)
 }
+
+
+Build <- function(state, enterprize=0, residences=0, industrial=0, military=0, research=0, farms=0, oil.rigs=0, construction = 0 ) {
+  state$success <- FALSE
+  total <- sum(enterprize +  residences +  industrial +  military + research + farms + oil.rigs + construction)
+
+  
+  if(state$empty.land < total) 
+    return(state)
+  
+  if(state$construction.cost * total > state$money)
+    return(state)
+  
+  state <- state %>% mutate(enterprise.zones   = enterprise.zones + enterprize,
+                            residences.zones   = residences.zones + residences,
+                            industrial.zones   = industrial.zones + industrial,
+                            military.zones     = military.zones + military,
+                            research.zones     = research.zones + research,
+                            farms.zones        = farms.zones + farms,
+                            oil.zones          = oil.zones + oil.rigs,
+                            construction.zones = construction.zones + construction,
+                            money              = money - state$construction.cost * total
+                            )
+  state <- Update.State(state)
+  state$success <- TRUE
+  return(state)
+}
+  
+
+
 
 
 

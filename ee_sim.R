@@ -10,9 +10,9 @@ source('explore_rates.R')
 # SPAL
 # Standard Strike
 # Planned Strike
-
 # Helper function
 # keep a number between two numbers elementwise
+
 pconstrain <- function( x, r1, r2 )
 {
   if(length(x) != length(r1) | length(x) != length(r2)){ stop ('Must be the same length') }
@@ -434,6 +434,47 @@ Calc.Explore.Rate <- function(state)
 }
 
 
+Calc.Population.Growth <- function(state) {
+  
+  BioFactor <- 1
+  
+  state <- Calc.Tech.Percentage(state)
+  state <- Calc.Max.Population(state)
+  
+  
+  state <- state %>% mutate(population.growth = ifelse(max.population > population, 
+                                                       floor( 
+                                                         min(
+                                                           (max.population - population) / 3, 
+                                                           max( 40,
+                                                                0.03 * tax.rate * population
+                                                           )
+                                                         )
+                                                       )
+                                                       ,
+                                                       floor(  -1 * min( (0.05 + 0.15 * tax.rate) * population, 
+                                                                         (population - max.population) / 3) 
+                                                       )
+  )
+  )
+  
+  
+  return(state)
+}
+
+
+Calc.Max.Population <- function(state)
+{
+  state <- state %>% mutate(max.population = 
+                              round(
+                                (1 - 0.95 * tax.rate) * (24 * residences.zones + 12 * land) * 
+                                  residential.tech.per * 1 * 1))
+  
+  
+  #  (1-0.95*$this->tax)*(24*$this->country['b_res']+12*$this->country['land'])*$this->g_pop*$this->getTechPercent('t_res')
+  
+  return(state)
+}
 
 
 

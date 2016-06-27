@@ -4,7 +4,7 @@ normalit<-function(m){
 
 getSlope <- function(table.df)
 {
-  if(length(table.df[[1]]) == 1){
+  if(length(table.df[[1]]) < 5){
     return(10000000)
   }
   

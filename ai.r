@@ -1,5 +1,5 @@
-#Made with RStudio. R vs 3.2
-print('2016-06-13 BLUE')
+#Made with RStudio. R vs 3.3
+print('2016-06-27 BLUE')
 list.of.packages <- c("plyr", "dplyr", "jsonlite", "httr", "randomNames", "tidyr", "stats", "RSQLite", "sqldf")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, repos='http://cran.us.r-project.org')
@@ -36,13 +36,14 @@ if(!exists("advisor.history"))
 
 getInfo()
 
-#createCountry()
+#for(i in 1:35) createCountry()
 
 repeat
 {
   server <- getServer()
-
-  for(cnum in server$cnum_list[[1]][1:5]) # play only the first 5 countries
+  bots <- server$cnum_list[[1]][1:5]
+  
+  for(cnum in sample(bots, length(bots))) # play only the first 5 countries
   {
     if(is.na(cnum)) break
     repeat

@@ -23,9 +23,9 @@ pconstrain <- function( x, r1, r2 )
   return(pmin(pmax(x, lower.bounds), upper.bounds))
 }
 
-Initialize.State <- function(id=0)
+Initialize.State <- function(cnum=0)
 {
-  state.Names <- c("id", "money","taxrate", "government", "food", "oil", 
+  state.Names <- c("cnum", "money","taxrate", "government", "food", "oil", 
                    "population", "turns.left", "turns.taken", "turns.stored", 
                    "enterprise.zones", "residences.zones", "industrial.zones", 
                    "military.zones", "research.zones", "farms.zones", 
@@ -47,7 +47,7 @@ Initialize.State <- function(id=0)
   state$gdi.member <- F
   state$taxrate <- 0.35
   state$troops.forces <- 100
-  state$id <- id
+  state$cnum <- cnum
   state$food <- 100
   state$government <- "M"
   state$success <= TRUE

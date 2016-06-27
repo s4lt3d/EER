@@ -768,6 +768,112 @@ Test.Calc.Explore.Rate <- function()
   }
 }
 
+
+Calc.Max.Population <- function(state)
+{
+  state <- state %>% mutate(max.population = 
+                              round(
+                                (1 - 0.95 * tax.rate) * (24 * residences.zones + 12 * land) * 
+                                  residential.tech.per * 1 * 1))
+  
+  
+#  (1-0.95*$this->tax)*(24*$this->country['b_res']+12*$this->country['land'])*$this->g_pop*$this->getTechPercent('t_res')
+  
+  return(state)
+}
+
+Test.Calc.Max.Population <- function()
+{
+  state <- Initialize.State()
+  
+  state <- state %>% mutate(land = 160, 
+                            tax.rate = 0.35,
+                            residences.zones = 32, 
+                            residential.tech = 0, 
+                            government = "M", 
+                            population = 1715
+  )
+  
+  state <- Calc.Tech.Percentage(state)
+  state <- Calc.Max.Population(state)  
+  
+  test <- state %>% filter(max.population == 1794)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    print("Expected")
+    print(118532)
+    print("Returned")
+    print(state$max.population)
+    stop("Unit Test Failed!  Test.Calc.Max.Population")
+    return(FALSE)
+  }
+}
+
+Calc.Population.Growth <- function(state) {
+  
+  BioFactor <- 1
+  
+  state <- Calc.Tech.Percentage(state)
+  state <- Calc.Max.Population(state)
+  
+  
+  
+    
+  state <- state %>% mutate(population.growth = ifelse(max.population > population, 
+                              floor(
+                                 min(
+                                    (max.population - population) / 3, 
+                                    max( 40,
+                                      0.03 * tax.rate * population
+                                    )
+                                 )
+                              )
+                           
+                               ,
+                                floor(  -1 * min( (0.05 + 0.15 * tax.rate) * population, 
+                                            (population - max.population) / 3) 
+                                )
+                             )
+                          )
+  
+  
+  return(state)
+}
+
+
+Test.Calc.Population.Growth <- function()
+{
+  state <- Initialize.State()
+  
+  state <- state %>% mutate(land = 160, 
+                            tax.rate = 0.35,
+                            residences.zones = 32, 
+                            residential.tech = 0, 
+                            government = "M", 
+                            population = 1715
+                            
+  )
+  
+  state <- Calc.Population.Growth(state)  
+  
+  test <- state %>% filter(population.growth == 26)
+  
+  if(tally(test) == 1) 
+  {
+    return(TRUE)
+  } else {
+    print("Expected")
+    print(26)
+    print("Returned")
+    print(state$population.growth)
+    stop("Unit Test Failed!  Calc.Population.Growth")
+    return(FALSE)
+  }
+}
+
 # Test.Inialize.State()
 Test.Calc.Buildings()
 Test.Calc.Empty.Land()
@@ -791,3 +897,5 @@ Test.Calc.Change.Government()
 Test.Calc.Tech.Percentage()
 Test.Calc.Total.Expense()
 Test.Calc.Explore.Rate()
+Test.Calc.Max.Population()
+Test.Calc.Population.Growth()

@@ -434,6 +434,9 @@ Calc.Explore.Rate <- function(state)
 }
 
 
+
+
+
 # test.state <- Initialize.State()
 # test.state <- Init.Gov.Bonus(test.state)
 # test.state <- Calc.Buildings(test.state)

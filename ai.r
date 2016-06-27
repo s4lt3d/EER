@@ -42,9 +42,9 @@ repeat
 {
   server <- getServer()
 
-
   for(cnum in server$cnum_list[[1]][1:5]) # play only the first 5 countries
   {
+    if(is.na(cnum)) break
     repeat
     {
       get.advisor(cnum)
@@ -158,5 +158,4 @@ repeat
     print("sleeping for 10 minutes")
     Sys.sleep(600)  
   }
-  
 }

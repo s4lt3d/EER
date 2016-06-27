@@ -25,7 +25,7 @@ pconstrain <- function( x, r1, r2 )
 
 Initialize.State <- function(id=0)
 {
-  state.Names <- c("id", "money","tax.rate", "government", "food", "oil", 
+  state.Names <- c("id", "money","taxrate", "government", "food", "oil", 
                    "population", "turns.left", "turns.taken", "turns.stored", 
                    "enterprise.zones", "residences.zones", "industrial.zones", 
                    "military.zones", "research.zones", "farms.zones", 
@@ -45,7 +45,7 @@ Initialize.State <- function(id=0)
   state$money <- 25000
   state$at.war <- F
   state$gdi.member <- F
-  state$tax.rate <- 0.35
+  state$taxrate <- 0.35
   state$troops.forces <- 100
   state$id <- id
   state$food <- 100
@@ -223,7 +223,7 @@ Init.Gov.Bonus <- function(state)
 
 Calc.PCI <- function(state)
 {
-  state <- state %>% mutate(pci = round(22.5 * (1 - tax.rate) * 
+  state <- state %>% mutate(pci = round(22.5 * (1 - taxrate) * 
                             (1 + ((networth/land)/18000)) * 
                             (1 + (2 * (enterprise.zones/land))) * 
                             business.tech * gov.pci.bonus, 2)  
@@ -233,7 +233,7 @@ Calc.PCI <- function(state)
 
 Calc.Revenue <- function(state)
 {
-  state <- state %>% mutate(revenue = as.integer(pci * population * tax.rate))
+  state <- state %>% mutate(revenue = as.integer(pci * population * taxrate))
   return(state)
 }
 
@@ -447,12 +447,12 @@ Calc.Population.Growth <- function(state) {
                                                          min(
                                                            (max.population - population) / 3, 
                                                            max( 40,
-                                                                0.03 * tax.rate * population
+                                                                0.03 * taxrate * population
                                                            )
                                                          )
                                                        )
                                                        ,
-                                                       floor(  -1 * min( (0.05 + 0.15 * tax.rate) * population, 
+                                                       floor(  -1 * min( (0.05 + 0.15 * taxrate) * population, 
                                                                          (population - max.population) / 3) 
                                                        )
   )
@@ -467,7 +467,7 @@ Calc.Max.Population <- function(state)
 {
   state <- state %>% mutate(max.population = 
                               round(
-                                (1 - 0.95 * tax.rate) * (24 * residences.zones + 12 * land) * 
+                                (1 - 0.95 * taxrate) * (24 * residences.zones + 12 * land) * 
                                   residential.tech.per * 1 * 1))
   
   

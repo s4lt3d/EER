@@ -38,15 +38,22 @@ plot.advisor <- function(cnum, tail.n=20)
 
 get.advisor <- function(cnum)
 {
+  if(is.na(cnum)) return(NULL)
   cnum <<- cnum
   ac <- advisor(cnum)
-  ac <- mutate(ac, taxrate=as.integer(taxrate), ps_tr=as.integer(ps_tr),
+  ac <- mutate(ac, taxrate=as.integer(taxrate)/100, ps_tr=as.integer(ps_tr),
                ps_j=as.integer(ps_j), ps_ta=as.integer(ps_ta), cnum=as.integer(cnum),
                protection=as.integer(protection)) # bug
   server <- getServer()
   advisor.current <<- tbl_df(cbind(ac, distinct(select(server, -cnum_list)), setNames(tbl_dt(as.numeric(as.POSIXct(Sys.time()))), c('local.time'))))
   
-  advisor.current <- mutate(advisor.current, countries_allowed=as.integer(countries_allowed))
+  advisor.current <- mutate(advisor.current, countries_allowed=as.integer(countries_allowed), 
+                            pro_spy=as.integer(pro_spy),
+                            pro_tr=as.integer(pro_tr), 
+                            pro_j=as.integer(pro_j), 
+                            pro_tu=as.integer(pro_tu), 
+                            pro_ta=as.integer(pro_ta)
+                            )
   if(file.exists("EE_History.csv")){
     write.table(advisor.current, file="EE_History.csv", sep=",", append = TRUE, col.name=FALSE, row.names = FALSE)
   } else {

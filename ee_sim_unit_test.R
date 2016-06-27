@@ -12,7 +12,7 @@ Test.Inialize.State <- function()
     money == 25000,
     at.war == F,
     gdi.member == F,
-    tax.rate == 0.35,
+    taxrate == 0.35,
     troops.forces == 100,
     food == 100,
     government == "Monarchy",
@@ -458,7 +458,7 @@ Test.Calc.PCI <- function()
                             money = 18234169,
                             gov.food.production.bonus = 1, 
                             gov.pci.bonus = 1,
-                            tax.rate = 0.35, 
+                            taxrate = 0.35, 
                             networth = 587350,
                             business.tech = 1
                             )
@@ -482,7 +482,7 @@ Test.Calc.Revenue <- function()
   state <- Initialize.State()  
   state <- state %>% mutate(pci = 14.70,
                             population = 107483,
-                            tax.rate = 0.35
+                            taxrate = 0.35
                             )
   
   state <- Calc.Revenue(state)
@@ -774,7 +774,7 @@ Test.Calc.Max.Population <- function()
   state <- Initialize.State()
   
   state <- state %>% mutate(land = 160, 
-                            tax.rate = 0.35,
+                            taxrate = 0.35,
                             residences.zones = 32, 
                             residential.tech = 0, 
                             government = "M", 
@@ -806,7 +806,7 @@ Test.Calc.Population.Growth <- function()
   state <- Initialize.State()
   
   state <- state %>% mutate(land = 160, 
-                            tax.rate = 0.35,
+                            taxrate = 0.35,
                             residences.zones = 32, 
                             residential.tech = 0, 
                             government = "M", 

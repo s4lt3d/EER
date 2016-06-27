@@ -44,5 +44,5 @@ Industrial         %8.0f  %7.3f%%           Jets                 $%9d
 Spy                %8.0f  %7.3f%%           Turrets              $%9d
 SDI                %8.0f  %7.3f%%           Tanks                $%9d
                                             Alliance/GDI             $%9d
-Total        %15d                Land                     $%9d
+Total       %15d                 Land                     $%9d
                                             Corruption               $%9d

@@ -36,11 +36,13 @@ Initialize.State <- function(cnum=0)
                    "spy.tech", "sdi.tech", "spies.forces", "troops.forces", 
                    "jets.forces", "turrets.forces", "tanks.forces", 
                    "nuclear.missiles.forces", "chemical.missiles.forces", 
-                   "cruise.missiles.forces", "at.war", "gdi.member", "turns", "success")
+                   "cruise.missiles.forces", "at.war", "gdi.member", "turns", 
+                   "success", "pci", "pci.growth", "food.net", "oil.production", 
+                   "net.income.prev", "net.income")
   
   state <- as.data.frame(t(as.data.frame(rep(0, length(state.Names)))))
   colnames(state) <- state.Names
-  state$land <- 100
+  state$land <- 120
   state$population <- 1000
   state$money <- 25000
   state$at.war <- F
@@ -51,9 +53,20 @@ Initialize.State <- function(cnum=0)
   state$food <- 100
   state$government <- "M"
   state$success <= TRUE
+  state$pci <- 20
+  state$pci.growth = 0
   state <- tbl_dt(state)
   state <- Init.Gov.Bonus(state)
   state <- Update.State(state)
+  state$net.income <- 6562
+  state$net.income.prev <- 6562
+  state$pci <- 20
+  state$pci.growth = 0
+  state$total.expense <- 438
+  state$revenue <- 7000
+  state$food.produced <- 48
+  state$food.consumption <- 30
+  state$food.net <- 18
   
   return(state)
 }
@@ -63,6 +76,7 @@ Update.State <- function(state)
   state <- Calc.Networth(state)
   state <- Calc.Buildings(state)
   state <- Calc.Tech.Total(state)
+  state <- Calc.Tech.Percentage(state)
   state <- Calc.Empty.Land(state)
   state <- Calc.Missiles.Total(state)
   state <- Calc.Construction.Cost(state)
@@ -77,11 +91,12 @@ Update.State <- function(state)
   state <- Calc.Tech.Per.Turn(state)
   state <- Calc.Land.Upkeep(state) 
   state <- Calc.Military.Upkeep(state)
-  state <- Calc.Tech.Percentage(state)
   state <- Calc.Total.Expense(state)
   state <- Calc.Explore.Rate(state)
   state <- Calc.Max.Population(state)
   state <- Calc.Population.Growth(state)
+  state <- Calc.Net.Income(state)
+  state <- Calc.Cashing(state)
   return(state)
 }
 
@@ -195,10 +210,10 @@ Calc.Food.Produced <- function(state)
   state <- Calc.Empty.Land(state)
   
   state <- state %>% mutate(food.produced = 
-                              as.integer(
+                              ceiling(
                                 ((farms.zones * 5.3) + 
                                 (empty.land * 0.4)) * gov.food.production.bonus * 
-                              agricultural.tech
+                              agricultural.tech.per
                               )
                            )
   return(state)
@@ -252,19 +267,45 @@ Init.Gov.Bonus <- function(state)
   return(state)
 }
 
+Calc.Net.Income <- function(state) {
+  state <- state %>% mutate(net.income.prev = net.income)
+  state <- state %>% mutate(net.income = round(revenue - total.expense))
+  return(state)
+}
+
+Calc.Cashing <- function(state) {
+  state <- state %>% mutate(cashing = round(revenue * 1.2 - total.expense))
+  return(state)
+}
+
 Calc.PCI <- function(state)
 {
-  state <- state %>% mutate(pci = round(22.5 * (1 - taxrate) * 
-                            (1 + ((networth/land)/18000)) * 
-                            (1 + (2 * (enterprise.zones/land))) * 
-                            business.tech * gov.pci.bonus, 2)  
-  )
+  state <- Calc.Population.Growth(state)
+  
+  #state <- state %>% mutate(pci = round(
+  #  22.5 * (1 - taxrate) * (1 + ((networth/land)/18000)) * (1 + (2 * (enterprise.zones/land))) * business.tech * gov.pci.bonus, 2)  
+  #)
+  
+  denominator = 18000
+  maxPCI=round(22.5*(1-state$taxrate)*(1+(state$networth/state$land)/denominator)*(1+2*state$enterprise.zones/state$land)*state$gov.pci.bonus*state$business.tech.per, 2)
+  pciA=(1+0.03*(1-state$taxrate))*(1-0.5*state$population.growth/(state$population.growth+state$population))*state$pci-state$pci
+  pciB=(0.035+0.3*state$taxrate)*state$pci
+  pciC=maxPCI-state$pci
+  
+  if (maxPCI>=state$pci) {
+    state$pci.growth <- min(pciA, pciC);
+  } else {
+    state$pci.growth <- -1*min(pciB, max(-1*pciA, -1*pciC));
+  }
+  
+  state$pci <- state$pci + state$pci.growth
+  
   return(state)
 }
 
 Calc.Revenue <- function(state)
 {
-  state <- state %>% mutate(revenue = as.integer(pci * population * taxrate))
+  state <- state %>% mutate(revenue = round(round(pci * population) * taxrate))
   return(state)
 }
 
@@ -305,7 +346,7 @@ Calc.Military.Upkeep <- function(state)
          (turrets.forces * .18) + 
          (tanks.forces * .57) + 
          spies.forces * 1) * 
-       military.tech * (1 + networth / 200000000) * 
+       military.tech.per * (1 + networth / 200000000) * 
        gov.military.upkeep.costs.bonus * 
         milcost
       ))  
@@ -446,6 +487,7 @@ Calc.Tech.Percentage <- function(state)
 
 Calc.Total.Expense <- function(state)
 {
+  state <- Calc.Military.Upkeep(state)
   state <- state %>% mutate(total.expense = military.upkeep + land.upkeep)
   
   return(state)
@@ -474,7 +516,7 @@ Calc.Population.Growth <- function(state) {
   
   
   state <- state %>% mutate(population.growth = ifelse(max.population > population, 
-                                                       floor( 
+                                                       round( 
                                                          min(
                                                            (max.population - population) / 3, 
                                                            max( 40,
@@ -493,6 +535,17 @@ Calc.Population.Growth <- function(state) {
   return(state)
 }
 
+Calc.Oil.Production <- function(state)
+{
+  state <- state %>% mutate(oil.production = oil.zones * 2 * gov.oil.production.bonus)
+  return(state)
+}
+
+Calc.Food.Net <- function(state){
+  
+  state <- state %>% mutate(food.net = food.produced - (food.consumption + food.decay))
+  return(state)
+}
 
 Calc.Max.Population <- function(state)
 {
@@ -507,12 +560,27 @@ Calc.Max.Population <- function(state)
   return(state)
 }
 
+Manage.End.Turn <- function(state){
+  state$money <- state$money + state$net.income.prev
+  state <- Calc.Food.Decay(state)
+  state <- Calc.Food.Produced(state)
+  state <- Calc.Food.Consumption(state)
+  state <- Calc.Oil.Production(state)
+  state <- Calc.Population.Growth(state)
+  state$population <- state$population + state$population.growth
+  state <- Calc.Revenue(state)
+  
+  state <- Calc.Net.Income(state)
+  state <- Calc.Cashing(state)
+  state <- Calc.Food.Net(state)
+  state$food <- state$food + state$food.net
+  return(state)
+}
 
 Build <- function(state, enterprize=0, residences=0, industrial=0, military=0, research=0, farms=0, oil.rigs=0, construction = 0 ) {
   state$success <- FALSE
   total <- sum(enterprize +  residences +  industrial +  military + research + farms + oil.rigs + construction)
 
-  
   if(state$empty.land < total) 
     return(state)
   
@@ -531,6 +599,7 @@ Build <- function(state, enterprize=0, residences=0, industrial=0, military=0, r
                             )
   state <- Update.State(state)
   state$success <- TRUE
+  state <- Manage.End.Turn(state)
   return(state)
 }
   

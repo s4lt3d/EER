@@ -114,6 +114,53 @@ Update.State <- function(state)
   return(state)
 }
 
+#Sync state with web game
+Sync.State <- function(state)
+{
+  state$success <- FALSE
+  adv           <- advisor(cnum)
+  
+  #todo
+  #if adv returns poorly return state unchanged
+  state$government              <- adv$govt
+  state$networth                <- adv$networth
+  state$land                    <- adv$land
+  state$empty.land              <- adv$empty
+  state$money                   <- adv$money
+  state$population              <- adv$pop
+  state$pci                     <- adv$pci
+  state$food                    <- adv$food
+  state$food.net                <- adv$foodnet
+  state$food.consumption        <- adv$foodcon
+  state$oil                     <- adv$oil
+  state$oil.production          <- adv$oilpro
+  state$enterprise.zones        <- adv$b_ent
+  state$residences.zones        <- adv$b_res
+  state$military.zones          <- adv$b_mb
+  state$industrial.zones        <- adv$b_indy
+  state$farms.zones             <- adv$b_farm
+  state$research.zones          <- adv$b_lab
+  state$construction.zones      <- adv$b_cs
+  state$spies.forces            <- adv$m_spy
+  state$troops.forces           <- adv$m_tr
+  state$jets.forces             <- adv$m_j
+  state$turrets.forces          <- adv$m_tu
+  state$tanks.forces            <- adv$m_ta
+  state$military.tech           <- adv$t_mil
+  state$medical.tech            <- adv$t_med
+  state$business.tech           <- adv$t_bus
+  state$residential.tech        <- adv$t_res
+  state$industrial.tech         <- adv$t_indy
+  state$agricultural.tech       <- adv$t_agri
+  state$warfare.tech            <- adv$t_war
+  state$weapons.tech            <- adv$t_weap
+  state$military.strategy.tech  <- adv$t_ms
+  
+  state <- Calc.Tech.Percentage(state)
+  
+  
+}
+
 Calc.Buildings <- function(state)
 {
   
@@ -624,6 +671,44 @@ Build <- function(state, enterprize=0, residences=0, industrial=0, military=0, r
   state <- Manage.End.Turn(state)
   return(state)
 }
+# TO DO Build Web Testing
+Build.Web <- function(state, enterprize=0, residences=0, industrial=0, military=0, research=0, farms=0, oil.rigs=0, construction = 0 ) {
+  state$success <- FALSE
+  total <- sum(enterprize +  residences +  industrial +  military + research + farms + oil.rigs + construction)
+  
+  if(state$empty.land < total) 
+    return(state)
+  
+  if(state$construction.cost * total > state$money)
+    return(state)
+  
+  
+  response <- buildTurn(cnum = state$cnum, ent=enterprize, res=residences,
+                        indy = industrial, mb = military, lab = research, 
+                        farm = farms, rig = oil.rigs, cs = construction)
+  
+  return(!is.null(response$turns))
+  
+  
+  
+  
+  state <- state %>% mutate(enterprise.zones   = enterprise.zones + enterprize,
+                            residences.zones   = residences.zones + residences,
+                            industrial.zones   = industrial.zones + industrial,
+                            military.zones     = military.zones + military,
+                            research.zones     = research.zones + research,
+                            farms.zones        = farms.zones + farms,
+                            oil.zones          = oil.zones + oil.rigs,
+                            construction.zones = construction.zones + construction,
+                            money              = money - state$construction.cost * total
+  )
+  
+  state <- Update.State(state)
+  state$success <- TRUE
+  state <- Manage.End.Turn(state)
+  return(state)
+}
+
 
 Explore <- function(state, turns=1, sd=0) {
   state$success <- FALSE

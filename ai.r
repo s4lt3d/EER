@@ -10,7 +10,7 @@ library("httr")
 library("randomNames") 
 library("tidyr")
 library("stats")
-library("RSQLite")
+#library("RSQLite")
 options(warn=-2)
 
 #this.dir <- dirname(parent.frame(2)$ofile)

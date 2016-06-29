@@ -25,20 +25,34 @@ pconstrain <- function( x, r1, r2 )
 
 Initialize.State <- function(cnum=0)
 {
-  state.Names <- c("cnum", "money","taxrate", "government", "food", "oil", 
-                   "population", "turns.left", "turns.taken", "turns.stored", 
-                   "enterprise.zones", "residences.zones", "industrial.zones", 
-                   "military.zones", "research.zones", "farms.zones", 
-                   "oil.zones", "construction.zones", "military.tech", 
-                   "medical.tech", "business.tech", "residential.tech", 
-                   "agricultural.tech", "warfare.tech", 
-                   "military.strategy.tech", "weapons.tech", "industrial.tech",
-                   "spy.tech", "sdi.tech", "spies.forces", "troops.forces", 
-                   "jets.forces", "turrets.forces", "tanks.forces", 
-                   "nuclear.missiles.forces", "chemical.missiles.forces", 
-                   "cruise.missiles.forces", "at.war", "gdi.member", "turns", 
-                   "success", "pci", "pci.growth", "food.net", "oil.production", 
-                   "net.income.prev", "net.income")
+  state.Names <- c("cnum", "money", "taxrate", "government", "food", "oil", "population", 
+                   "turns.left", "turns.taken", "turns.stored", "enterprise.zones", 
+                   "residences.zones", "industrial.zones", "military.zones", "research.zones", 
+                   "farms.zones", "oil.zones", "construction.zones", "military.tech", 
+                   "medical.tech", "business.tech", "residential.tech", "agricultural.tech", 
+                   "warfare.tech", "military.strategy.tech", "weapons.tech", "industrial.tech", 
+                   "spy.tech", "sdi.tech", "spies.forces", "troops.forces", "jets.forces", 
+                   "turrets.forces", "tanks.forces", "nuclear.missiles.forces", 
+                   "chemical.missiles.forces", "cruise.missiles.forces", "at.war", "gdi.member", 
+                   "turns", "success", "pci", "pci.growth", "food.net", "oil.production", 
+                   "net.income.prev", "net.income", "land", "gov.food.production.bonus", 
+                   "gov.strike.bonus", "gov.oil.production.bonus", "gov.pci.bonus", 
+                   "gov.population.bonus", "gov.attack.gains.bonus", "gov.attack.turns.bonus", 
+                   "gov.military.upkeep.costs.bonus", "gov.military.strength.bonus", 
+                   "gov.spy.bonus", "gov.construction.speed.bonus", "gov.ghost.acres", 
+                   "gov.technology.bonus", "gov.industrial.production.bonus", 
+                   "gov.market.sales.size.cap.bonus", "gov.market.commision.bonus", 
+                   "gov.private.market.military.cost.bonus", "gov.maximum.technology.bonus", 
+                   "gov.maximum.population.bonus", "gov.gdi.bonus", "gov.exploration.bonus", 
+                   "gov.maximum.pci.bonus", "tech.total", "buildings", "missles.total", 
+                   "networth", "business.tech.per", "residential.tech.per", 
+                   "agricultural.tech.per", "sdi.tech.per", "medical.tech.per", 
+                   "military.tech.per", "warfare.tech.per", "military.strategy.tech.per", 
+                   "weapons.tech.per", "industrial.tech.per", "spy.tech.per", "empty.land", 
+                   "construction.cost", "destruction.cost", "oil.consumption", "food.consumption", 
+                   "food.produced", "food.decay", "max.population", "population.growth", 
+                   "revenue", "buildings.per.turn", "tech.per.turn", "land.upkeep", 
+                   "milcost", "military.upkeep", "total.expense", "explore.rate", "cashing")
   
   state <- as.data.frame(t(as.data.frame(rep(0, length(state.Names)))))
   colnames(state) <- state.Names
@@ -560,8 +574,14 @@ Calc.Max.Population <- function(state)
   return(state)
 }
 
-Manage.End.Turn <- function(state){
-  state$money <- state$money + state$net.income.prev
+Manage.End.Turn <- function(state, cashing = F){
+  
+  if(cashing == F){
+    state$money <- as.integer(state$money + state$net.income.prev)
+  } else {
+    state$money <- as.integer(state$money + state$revenue * 1.2 - state$total.expense)
+  }
+  
   state <- Calc.Food.Decay(state)
   state <- Calc.Food.Produced(state)
   state <- Calc.Food.Consumption(state)
@@ -629,6 +649,16 @@ Explore <- function(state, turns=1, sd=0) {
   return(state)
 }
   
+Cash <- function(state, enterprize=0, residences=0, industrial=0, military=0, research=0, farms=0, oil.rigs=0, construction = 0 ) {
+  state$success <- FALSE
+
+  state 
+  
+  state <- Update.State(state)
+  state$success <- TRUE
+  state <- Manage.End.Turn(state, cashing = 1.2)
+  return(state)
+}
 
 
 

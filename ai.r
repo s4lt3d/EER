@@ -1,5 +1,5 @@
 #Made with RStudio. R vs 3.3
-print('2016-06-27 BLUE')
+print('2016-06-28 YELLOW')
 list.of.packages <- c("plyr", "dplyr", "jsonlite", "httr", "randomNames", "tidyr", "stats", "RSQLite", "sqldf")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, repos='http://cran.us.r-project.org')

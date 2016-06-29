@@ -574,6 +574,7 @@ Manage.End.Turn <- function(state){
   state <- Calc.Cashing(state)
   state <- Calc.Food.Net(state)
   state$food <- state$food + state$food.net
+  state$turns.taken <- state$turns.taken + 1
   return(state)
 }
 
@@ -597,9 +598,34 @@ Build <- function(state, enterprize=0, residences=0, industrial=0, military=0, r
                             construction.zones = construction.zones + construction,
                             money              = money - state$construction.cost * total
                             )
+  
   state <- Update.State(state)
   state$success <- TRUE
   state <- Manage.End.Turn(state)
+  return(state)
+}
+
+Explore <- function(state, turns=1, sd=0) {
+  state$success <- FALSE
+  state <- Calc.Explore.Rate(state)
+  if(state$empty.land > state$land / 2) 
+    return(state)
+  
+  
+  explore.rate <- state$explore.rate
+  
+  for(i in 1:turns)
+  {
+    state$land <- state$land + round(rnorm(1, mean = explore.rate, sd = state$explore.rate / 10 + 2))
+    state <- Update.State(state)    
+    state <- Manage.End.Turn(state)
+    
+    if(state$empty.land > state$land / 2) {
+      break
+    }
+  }
+  
+  state$success <- TRUE
   return(state)
 }
   

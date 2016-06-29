@@ -12,7 +12,7 @@ printState <- function(state) {
                     state$networth, 
                     state$turns, 
                     state$revenue,
-                    0, #turns taken
+                    state$turns.taken,
                     state$taxrate * 100,
                     0, #turns stored
                     state$pci,

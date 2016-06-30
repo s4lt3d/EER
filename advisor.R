@@ -54,11 +54,12 @@ get.advisor <- function(cnum)
                             pro_tu=as.integer(pro_tu), 
                             pro_ta=as.integer(pro_ta)
                             )
-  if(file.exists("EE_History.csv")){
-    write.table(advisor.current, file="EE_History.csv", sep=",", append = TRUE, col.name=FALSE, row.names = FALSE)
-  } else {
-    write.table(advisor.current, file="EE_History.csv", sep=",", append = TRUE, col.name=TRUE, row.names = FALSE)
-  }
+  
+  dbWriteTable(conn=sqlite.con, 
+               name="advisor_history", 
+               as.data.frame(advisor.current), 
+               row.names = FALSE, 
+               append=TRUE)
   
   if(!exists("advisor.history"))
   {

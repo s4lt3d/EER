@@ -146,12 +146,12 @@ cashTurn <- function(cnum)
   return(tbl_dt(fromJSON(res)$CASH))
 }
 
-exploreTurn <- function(cnum)
+exploreTurn <- function(cnum, turns=1)
 {
   params <- default.params
   params$api_function <- "explore"
   params$cnum <- cnum
-  params$turns <- 150
+  params$turns <- turns
   res <- doPOST(params)
   return(tbl_dt(fromJSON(res)$EXPLORE))
 }

@@ -23,14 +23,24 @@ source('game_functions.r')
 
 server <<- getServer()
 
-if(!exists("advisor.history"))
-{
-  if(file.exists("EE_History.csv"))
-  {
-    advisor.history <<- tbl_df(read.table(file="EE_History.csv", header = TRUE, sep=","))
-    advisor.history <- filter(advisor.history, round_num == server$round_num)
-  }
+#if(!exists("advisor.history"))
+#{
+#  if(file.exists("EE_History.csv"))
+#  {
+#    advisor.history <<- tbl_df(read.table(file="EE_History.csv", header = TRUE, sep=","))
+#    advisor.history <- filter(advisor.history, round_num == server$round_num)
+#  }
+#}
+
+if(!exists("sqlite.con")){
+  sqlite.con <<- dbConnect(RSQLite::SQLite(), dbname="advisor.sqlite")
 }
+
+tables <- dbListTables(sqlite.con)
+
+advisor.history <- dbReadTable(conn= sqlite.con, name="advisor_history")
+advisor.history <- tbl_df(advisor.history)
+
 
 # get only the current round for the bots
 
@@ -41,7 +51,7 @@ getInfo()
 repeat
 {
   server <- getServer()
-  bots <- server$cnum_list[[1]][1:5]
+  bots <- server$cnum_list[[1]][1:20]
   
   for(cnum in sample(bots, length(bots))) # play only the first 5 countries
   {
@@ -53,9 +63,10 @@ repeat
       print(paste("Playing", cnum, "Turn", advisor.current$turns_played))
       
       decisions <- decisionTable(cnum)
-      
+      #print(decisions)
       for(i in 1:length(decisions$type)) 
       {
+        
         switch(as.character(decisions$type[i]), 
            b_cs={
              if(build.Construction.Sites()){
@@ -65,7 +76,7 @@ repeat
              
            },
            explore={
-             if(explore()) {
+             if(explore(advisor.current$turns)) {
                print('explore')
                break
              }
@@ -77,7 +88,7 @@ repeat
             }
           },
           food={
-            if(buy.Bushels(advisor.current$foodcon * 50))
+            if(buy.Bushels(advisor.current$foodcon * 60))
             {
               print('food')
               break
@@ -87,7 +98,7 @@ repeat
             
             if(build.Farms()) {
               tech.Agriculture() # make farms better
-              buy.Bushels(advisor.current$foodcon * 50)
+              buy.Bushels(advisor.current$foodcon * 60)
               print('farms')
               break
             }
@@ -149,7 +160,6 @@ repeat
     }
     plot.advisor(cnum, 2500) # Show the last 100 interesting things
   }
-  
   
   if((advisor.current$reset_end - advisor.current$time) / 3600 > 5)
   {

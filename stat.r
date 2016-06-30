@@ -57,7 +57,7 @@ decisionTable <- function(cnum=26)
   
   advisor.cnum <- tail(select(filter(advisor.history, cnum==country_num)), n=1)
 
-  if(select(advisor.current, money) < 1000)
+  if(select(advisor.current, money) < 10000)
   {
     income.slope <- -10
   }
@@ -69,7 +69,7 @@ decisionTable <- function(cnum=26)
 
   building.needed <- 10
   
-  if((select(advisor.current, empty) < select(advisor.current, bpt) * 4) & 
+  if((select(advisor.current, empty) < select(advisor.current, bpt) ) & 
       select(advisor.current, empty) < select(advisor.current, land) / 3)
   {
     building.needed <- -6
@@ -77,11 +77,11 @@ decisionTable <- function(cnum=26)
 
   build.farm <- 5
   
-  if(select(advisor.current, foodnet) < 0 & select(advisor.current, food) < 50000)
+  if(select(advisor.current, food) < 50000)
   {
-    build.farm <- -5
+    build.farm <- -3
   }
-    
+  
   cs.needed <- 100
 
   if(select(advisor.current, b_cs) < 80)

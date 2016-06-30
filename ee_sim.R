@@ -27,6 +27,7 @@ source('explore_rates.R')
 # Standard Strike
 # Planned Strike
 # Helper function
+# Government Change
 # keep a number between two numbers elementwise
 
 pconstrain <- function( x, r1, r2 )
@@ -360,8 +361,53 @@ Init.Gov.Bonus <- function(state)
                             gov.gdi.bonus = 1,
                             gov.exploration.bonus = 1,
                             gov.maximum.pci.bonus = 1,
-                            gov.market.commision.bonus = 1
+                            gov.market.commision.bonus = 1.06
                             )
+  
+  switch(state$government, 
+         M = {
+         },
+         F = {
+           state$gov.food.production.bonus = 1.15
+           state$gov.oil.production.bonus = 0.5
+           state$gov.maximum.pci.bonus = 0.9
+           state$gov.population.bonus = 0.85 #-15% Population
+         },
+         T = {
+           state$gov.attack.gains.bonus = 1.2
+           state$gov.military.upkeep.costs.bonus = 0.9
+           state$gov.maximum.pci.bonus = 0.75
+         },
+         I = {
+           state$gov.military.strength.bonus = 1.25
+           state$gov.spy.bonus = 1.3
+           state$gov.construction.speed.bonus = 0.7
+           state$gov.ghost.acres = 1.33
+         },
+         C = {
+           state$gov.technology.bonus = 1.2
+           state$gov.industrial.production.bonus = 1.35
+           state$gov.market.sales.size.cap.bonus = 1.35
+           state$gov.market.commision.bonus = 1.1
+         },
+         H = {
+           state$gov.private.market.military.cost.bonus = 0.8
+           state$gov.construction.speed.bonus = 1.4
+           state$gov.maximum.technology.bonus = 0.65
+           state$gov.maximum.population.bonus = 1.5
+         },
+         R = {
+           state$gov.exploration.bonus = 1.2
+           state$gov.maximum.pci.bonus = 1.2
+           state$gov.military.strength.bonus = 0.9
+         },
+         D = {
+           state$gov.market.commision.bonus = 1
+           state$gov.maximum.technology.bonus
+         },
+         G = {}
+  )
+  
   return(state)
 }
 

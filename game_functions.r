@@ -101,9 +101,9 @@ cash <- function()
   return(!is.null(response$turns))
 }
 
-explore <- function()
+explore <- function(turns = 1)
 {
-  response = exploreTurn(cnum)
+  response = exploreTurn(cnum, turns)
   return(!is.null(response$turns))
 }
 

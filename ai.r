@@ -10,6 +10,7 @@ library("httr")
 library("randomNames") 
 library("tidyr")
 library("stats")
+library("RSQLite")
 #library("RSQLite")
 options(warn=-2)
 

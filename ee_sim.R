@@ -1,4 +1,20 @@
-library(dplyr)
+library("plyr")
+library("dplyr") 
+library("jsonlite") 
+library("httr") 
+library("randomNames") 
+library("tidyr")
+library("stats")
+#library("RSQLite")
+options(warn=-2)
+
+#this.dir <- dirname(parent.frame(2)$ofile)
+#setwd(this.dir)
+
+source('web.r') # contains all the code for getting data in and out of the server
+#source('stat.r')
+#source('advisor.R')
+#source('game_functions.r')
 
 source('explore_rates.R')
 # This is a full sim of EE so that bots can train faster
@@ -52,7 +68,8 @@ Initialize.State <- function(cnum=0)
                    "construction.cost", "destruction.cost", "oil.consumption", "food.consumption", 
                    "food.produced", "food.decay", "max.population", "population.growth", 
                    "revenue", "buildings.per.turn", "tech.per.turn", "land.upkeep", 
-                   "milcost", "military.upkeep", "total.expense", "explore.rate", "cashing")
+                   "milcost", "military.upkeep", "total.expense", "explore.rate", "cashing", 
+                   "troops.upkeep", "spies.upkeep", "jets.upkeep", "turrets.upkeep", "tanks.upkeep", "rank")
   
   state <- as.data.frame(t(as.data.frame(rep(0, length(state.Names)))))
   colnames(state) <- state.Names
@@ -118,10 +135,10 @@ Update.State <- function(state)
 Sync.State <- function(state)
 {
   state$success <- FALSE
-  adv           <- advisor(cnum)
-  
-  #todo
-  #if adv returns poorly return state unchanged
+  adv           <- advisor(state$cnum)
+  if(is.null(adv))
+    return(state)
+
   state$government              <- adv$govt
   state$networth                <- adv$networth
   state$land                    <- adv$land
@@ -146,6 +163,7 @@ Sync.State <- function(state)
   state$jets.forces             <- adv$m_j
   state$turrets.forces          <- adv$m_tu
   state$tanks.forces            <- adv$m_ta
+
   state$military.tech           <- adv$t_mil
   state$medical.tech            <- adv$t_med
   state$business.tech           <- adv$t_bus
@@ -155,10 +173,29 @@ Sync.State <- function(state)
   state$warfare.tech            <- adv$t_war
   state$weapons.tech            <- adv$t_weap
   state$military.strategy.tech  <- adv$t_ms
+  state <- Calc.Tech.Percentage(state) # better resolution than adv
+  state$tech.total              <- adv$t_tot
   
-  state <- Calc.Tech.Percentage(state)
-  
-  
+  state$tech.per.turn           <- adv$tpt
+  state$land.upkeep             <- adv$expenses_land
+  state$military.upkeep         <- adv$expenses_mil
+  state$troops.upkeep           <- adv$expense_tr
+  state$jets.upkeep             <- adv$expense_j
+  state$spies.upkeep            <- adv$expense_spy
+  state$turrets.upkeep          <- adv$expense_tu
+  state$tanks.upkeep            <- adv$expense_ta
+  state$revenue                 <- adv$taxes
+  state$cashing                 <- adv$cashing
+  state$government              <- adv$govt
+  state$taxrate                 <- as.numeric(adv$taxrate) / 100
+  state$net.income              <- adv$income
+  state$turns.stored            <- adv$turns_stored
+  state$turns.taken             <- adv$turns_played
+  state$turns.left              <- adv$turns
+  state$buildings.per.turn      <- adv$bpt
+  state$explore.rate            <- adv$explore_rate
+
+  return(state)
 }
 
 Calc.Buildings <- function(state)
@@ -623,25 +660,36 @@ Calc.Max.Population <- function(state)
 
 Manage.End.Turn <- function(state, cashing = F){
   
+  state <- Calc.Food.Decay(state)
+  state <- Calc.Food.Produced(state)
+  state <- Calc.Food.Consumption(state)
+  state <- Calc.Food.Net(state)
+  state$food <- state$food + state$food.net
+  
+  state <- Calc.Oil.Production(state)
+  
+  state <- Calc.PCI(state)
+  state <- Calc.Population.Growth(state)
+  
+  
+  
+  state$population <- state$population + state$population.growth
+  state <- Calc.Revenue(state)
+  
+  
+  state$turns.taken <- state$turns.taken + 1
+  
+  state <- Calc.Net.Income(state)
+  state <- Calc.Cashing(state)
+  
+  
   if(cashing == F){
-    state$money <- as.integer(state$money + state$net.income.prev)
+    state$money <- as.integer(state$money + state$net.income)
   } else {
     state$money <- as.integer(state$money + state$revenue * 1.2 - state$total.expense)
   }
   
-  state <- Calc.Food.Decay(state)
-  state <- Calc.Food.Produced(state)
-  state <- Calc.Food.Consumption(state)
-  state <- Calc.Oil.Production(state)
-  state <- Calc.Population.Growth(state)
-  state$population <- state$population + state$population.growth
-  state <- Calc.Revenue(state)
   
-  state <- Calc.Net.Income(state)
-  state <- Calc.Cashing(state)
-  state <- Calc.Food.Net(state)
-  state$food <- state$food + state$food.net
-  state$turns.taken <- state$turns.taken + 1
   return(state)
 }
 

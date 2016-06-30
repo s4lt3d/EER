@@ -29,20 +29,28 @@ doPOST <- function(params)
   post.url <- base.url 
   p <- toJSON(params, auto_unbox=TRUE)
   req <- ""
-  tryCatch( # POST can timeout so catch this. 
-    req <- POST(url=post.url, body=list(api_payload=p), encode="form"),
-    error=function(X){ req <-""}
-  )
-  if(length(req) < 5) {
-    json <- '{"response":"ERROR"}'
-    print('Timeout')
-    return(json)
+  postCount <- 0
+  repeat
+  {
+    tryCatch( # POST can timeout so catch this. 
+      req <- POST(url=post.url, body=list(api_payload=p), encode="form"),
+      error=function(X){ req <-""}
+    )
+    if(length(req) < 5) {
+      json <- NA
+      print('Timeout')
+    } else {
+      json <- content(req, "text", encoding = "UTF-8")
+      break
+    }
+    
+    postCount <- postCount + 1
+    if(postCount > 10)
+      break
   }
   
-  json <- content(req, "text", encoding = "UTF-8")
   
-  #print(json)
-  #json <- fixjson(json)
+#  print(json)
   return(json)
 }
 
@@ -143,7 +151,7 @@ exploreTurn <- function(cnum)
   params <- default.params
   params$api_function <- "explore"
   params$cnum <- cnum
-  params$turns <- 1
+  params$turns <- 150
   res <- doPOST(params)
   return(tbl_dt(fromJSON(res)$EXPLORE))
 }

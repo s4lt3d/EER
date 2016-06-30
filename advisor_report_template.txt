@@ -7,16 +7,16 @@
 The Basics                                  Current Status
 *************************************       ***********************************
 Turns Left            %15d       Tax Revenue              $%9d
-Turns Taken           %15d         Tax Rate               $%9d
+Turns Taken           %15d         Tax Rate               %9d%%
 Turns Stored          %15d         Per Capital Income     $%9.2f
 Rank                  %15d       Expenses                 $%9d
 Networth             $%15d       Net Income               $%9d
 Land                  %15d         Cashing                $%9d
-Money                $%15d       Food                     $%9d
-Population            %15d         Production             $%9d
-At War                %15d         Consumption            $%9d
-GDI Member            %15d         Decay                  $%9d
-                                              Net Change             $%9d
+Money                $%15d       Food                      %9d
+Population            %15d         Production              %9d
+At War                %15d         Consumption             %9d
+GDI Member            %15d         Decay                   %9d
+                                              Net Change              %9d
 Land Distribution                           Oil                       %9d
 *************************************         Production              %9d
 Enterprise Zones      %15d       Building Rate             %9d

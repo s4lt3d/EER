@@ -47,10 +47,11 @@ advisor.history <- tbl_df(advisor.history)
 
 getInfo()
 
-#for(i in 1:35) createCountry()
 
 repeat
 {
+  for(i in 1:25) createCountry()
+  
   server <- getServer()
   bots <- server$cnum_list[[1]][1:20]
   

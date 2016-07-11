@@ -5,7 +5,7 @@ source('print_state.R')
 
 con <- dbConnect(RSQLite::SQLite(), dbname="state.sqlite")
 
-dbSendQuery(conn = con, "DROP TABLE IF EXISTS states")
+#dbSendQuery(conn = con, "DROP TABLE IF EXISTS states")
 dbListTables(con)
 
 
@@ -18,7 +18,6 @@ printState(state)
 for(i in 1:80){
   state <- Build(state, construction = 1)
   dbWriteTable(conn=con, name="states", as.data.frame(state), row.names = FALSE, append=TRUE)
-  
 }
   
 printState(state)

@@ -1,6 +1,6 @@
 #Made with RStudio. R vs 3.3
-print('2016-06-28 YELLOW')
-list.of.packages <- c("plyr", "dplyr", "jsonlite", "httr", "randomNames", "tidyr", "stats", "RSQLite", "sqldf")
+print('2016-07-13 REDISH')
+list.of.packages <- c("plyr", "dplyr", "jsonlite", "httr", "randomNames", "tidyr", "stats", "RSQLite")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, repos='http://cran.us.r-project.org')
 library("plyr")
@@ -14,24 +14,12 @@ library("RSQLite")
 #library("RSQLite")
 options(warn=-2)
 
-#this.dir <- dirname(parent.frame(2)$ofile)
-#setwd(this.dir)
-
 source('web.r') # contains all the code for getting data in and out of the server
 source('stat.r')
 source('advisor.R')
 source('game_functions.r')
 
 server <<- getServer()
-
-#if(!exists("advisor.history"))
-#{
-#  if(file.exists("EE_History.csv"))
-#  {
-#    advisor.history <<- tbl_df(read.table(file="EE_History.csv", header = TRUE, sep=","))
-#    advisor.history <- filter(advisor.history, round_num == server$round_num)
-#  }
-#}
 
 if(!exists("sqlite.con")){
   sqlite.con <<- dbConnect(RSQLite::SQLite(), dbname="advisor.sqlite")
@@ -42,18 +30,15 @@ tables <- dbListTables(sqlite.con)
 advisor.history <- dbReadTable(conn= sqlite.con, name="advisor_history")
 advisor.history <- tbl_df(advisor.history)
 
-
 # get only the current round for the bots
-
 getInfo()
-
 
 repeat
 {
   for(i in 1:25) createCountry()
   
   server <- getServer()
-  bots <- server$cnum_list[[1]][1:20]
+  bots <- server$cnum_list[[1]][1:25]
   
   for(cnum in sample(bots, length(bots))) # play only the first 5 countries
   {
@@ -68,7 +53,6 @@ repeat
       #print(decisions)
       for(i in 1:length(decisions$type)) 
       {
-        
         switch(as.character(decisions$type[i]), 
            b_cs={
              if(build.Construction.Sites()){

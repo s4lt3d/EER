@@ -30,6 +30,7 @@ source('explore_rates.R')
 # Government Change
 # keep a number between two numbers elementwise
 
+#Constrain a value between two other values regardless of order
 pconstrain <- function( x, r1, r2 )
 {
   if(length(x) != length(r1) | length(x) != length(r2)){ stop ('Must be the same length') }
@@ -74,7 +75,7 @@ Initialize.State <- function(cnum=0)
   
   state <- as.data.frame(t(as.data.frame(rep(0, length(state.Names)))))
   colnames(state) <- state.Names
-  state$land <- 120
+  state$land <- 100
   state$population <- 1000
   state$money <- 25000
   state$at.war <- F

@@ -9,15 +9,15 @@ con <- dbConnect(RSQLite::SQLite(), dbname="state.sqlite")
 dbListTables(con)
 
 
-state <- Initialize.State(36)
+state <- Initialize.State(81)
 printState(state)
-state <- Sync.State(state)
-printState(state)
+#state <- Sync.State(state)
+#printState(state)
 
 #state <- Cash(state, T)
 for(i in 1:80){
   state <- Build(state, construction = 1)
-  dbWriteTable(conn=con, name="states", as.data.frame(state), row.names = FALSE, append=TRUE)
+  #dbWriteTable(conn=con, name="states", as.data.frame(state), row.names = FALSE, append=TRUE)
 }
   
 printState(state)

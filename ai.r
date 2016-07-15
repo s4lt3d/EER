@@ -33,11 +33,6 @@ advisor.history <- tbl_df(advisor.history)
 # get only the current round for the bots
 getInfo()
 
-<<<<<<< Updated upstream
-=======
-for(i in 1:35) createCountry()
-
->>>>>>> Stashed changes
 repeat
 {
   for(i in 1:25) createCountry()
